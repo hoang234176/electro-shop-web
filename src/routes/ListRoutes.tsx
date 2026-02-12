@@ -10,6 +10,7 @@ import Error500 from "../pages/error/Error500";
 import ProductDetail from "../pages/product/ProductDetail";
 import InfoUser from "../pages/user/InfoUser";
 import EditUser from "../pages/user/EditUser";
+import TestUI from "../test/TestUI";
 
 
 function ListRouter(){
@@ -39,6 +40,9 @@ function ListRouter(){
             {/* user */}
             <Route path='/user/info' element={<InfoUser />} />
             <Route path='/user/edit' element={<EditUser />} />
+
+            {/* test */}
+            <Route path='test' element={<TestUI />} />
         </Routes>
     )
 }
