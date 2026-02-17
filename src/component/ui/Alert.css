@@ -1,0 +1,83 @@
+.alert-overlay {
+    position: fixed;
+    z-index: 999;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+
+}
+
+.alert-group {
+    position: fixed;
+    z-index: 1000;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    /*Giới hạn kích thước*/
+    min-width: 300px;
+    max-width: 70%;
+
+    background: #ffffff;
+    border-radius: 24px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
+
+    animation: popup 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;   
+}
+
+/* Định nghĩa chuyển động nảy lên (Popup animation) */
+@keyframes popup {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -60%) scale(0.9); /* Bắt đầu hơi cao và nhỏ */
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1); /* Kết thúc đúng vị trí */
+    }
+}
+
+.title-alert {
+    padding: 16px 16px;
+    font-size: 32px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.alert-info {
+    color: #007bff;
+}
+
+
+.alert-warning {
+    color: #ff9900;
+}
+
+.alert-error {
+    color: #ff0000;
+}
+
+.alert-success {
+    color: #1a73e8;
+}
+
+.message-alert {
+    padding: 16px 16px;
+    font-size: 20px;
+    font-weight: 300;
+    text-align: center;
+}
+
+.footer-alert {
+    padding: 16px; /* Giữ nguyên */
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    
+    /* THAY ĐỔI Ở ĐÂY */
+    justify-content: flex-end; /* Đẩy hết sang phải */
+    gap: 12px; /* Tạo khoảng cách 12px giữa 2 nút (không bị dính vào nhau) */
+    
+}
