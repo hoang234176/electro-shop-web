@@ -12,7 +12,7 @@
 .alert-group {
     position: fixed;
     z-index: 1000;
-    top: 50%;
+    top: 20%;
     left: 50%;
     transform: translate(-50%, -50%);
 

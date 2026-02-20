@@ -1,0 +1,24 @@
+/* 1. Nhúng font chữ từ Google Fonts (Ví dụ: font Inter đang rất phổ biến) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* 2. Khai báo biến cục bộ trong :root */
+:root {
+  --font-main: 'Inter', sans-serif;
+}
+
+/* 3. Phủ biến này lên toàn bộ body */
+body {
+  font-family: var(--font-main);
+  /* Giúp viền chữ sắc nét và mượt mà hơn trên các màn hình */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale; 
+}
+
+/* 4. Bước quan trọng: Ép các phần tử đặc biệt nhận chung font */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+input, button, textarea, select {
+  font-family: var(--font-main);
+}
