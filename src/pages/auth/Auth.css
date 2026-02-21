@@ -1,4 +1,4 @@
-.login-container {
+.auth-container {
     width: 100%;
     min-height: 100vh;
     /* Chiếm toàn bộ chiều cao màn hình */
@@ -12,7 +12,7 @@
     box-sizing: border-box;
 }
 
-.form-login-group {
+.form-auth-group {
     background-color: #ffffff;
     min-width: 400px;
     max-width: 70%;
@@ -28,7 +28,7 @@
     justify-content: center
 }
 
-.form-login {
+.form-auth {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -37,7 +37,7 @@
     width: 100%;
 }
 
-.form-login h1 {
+.form-auth h1 {
     margin-top: 24px;
     margin-bottom: 8px;
     font-size: 32px;
@@ -49,7 +49,7 @@
     width: 90%;
 }
 
-.btn-login {
+.btn-auth {
     border-radius: 8px;
 }
 
@@ -134,4 +134,29 @@
     background: #fee2e2;
     color: #b91c1c;
     border: 1px solid #f87171;
+}
+
+.or-group-register {
+    position: relative;
+    width: 90%;
+    margin-bottom: 32px;
+    margin-top: 16px;
+}
+
+.or-group-register hr {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    /* transform: translate(-50%, -50%); */
+    border: 1px solid #dadce0;
+    width: 100%;
+}
+
+.or-group-register p {
+    position: absolute;
+    top: 0px;
+    left: 50%;
+    transform: translate(-50%, -80%);
+    padding: 4px;
+    background: #ffffff;
 }

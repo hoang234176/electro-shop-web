@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Button from "../../component/ui/Button";
 import Input from "../../component/ui/Input";
-import "./Login.css";
+import "./Auth.css";
 import logoGoogle from "../../assets/google-logo.png";
 
 
@@ -79,9 +79,9 @@ function Login(){
 
 
     return (
-        <div className="login-container">
-            <div className="form-login-group">
-                <form className="form-login" onSubmit={handSubmit}>
+        <div className="auth-container">
+            <div className="form-auth-group">
+                <form className="form-auth" onSubmit={handSubmit}>
                     <h1>ĐĂNG NHẬP</h1>
                     {MessageError(validationError, authError)}
                     <Input
@@ -117,7 +117,7 @@ function Login(){
                         variant="primary" 
                         width="90%" 
                         height="48px"
-                        className="btn-login"
+                        className="btn-auth"
                     >
                         Đăng nhập
                     </Button>
