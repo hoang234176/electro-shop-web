@@ -4,15 +4,16 @@ import Button from "../../component/ui/Button";
 import Input from "../../component/ui/Input";
 import "./Auth.css";
 import logoGoogle from "../../assets/google-logo.png";
+import axios from "axios";
 
 
 
-function Login(){
+function Login() {
     const navigate = useNavigate();
     const [isShowPassword, setIsShowPassword] = useState(false);
     const [stateTypePassword, setTypePassword] = useState("password");
     const [btnTextPassword, setBtnTextPassword] = useState("Hiện");
-    
+
     const [userName, setUserName] = useState("");
     const [password, setPassword] = useState("");
 
@@ -35,7 +36,7 @@ function Login(){
         }
     }
 
-    const handSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    const handSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
         const isUserEmpty = userName.trim() === "";
@@ -46,7 +47,7 @@ function Login(){
                 setIsErrorUserName(true);
                 setValidationError(true);
                 setAuthError(false);
-            } 
+            }
             if (isPassEmpty) {
                 setIsErrorPassword(true);
                 setValidationError(true);
@@ -58,16 +59,31 @@ function Login(){
                 setIsErrorPassword(false);
             }, 200);
         } else {
-            if (userName === "admin" && password === "admin"){
-                navigate("/");
-            } else {
+            try {
+                const infoUserLogin = {
+                    userName: userName,
+                    password: password
+                }
+
+                const res = await axios.post('http://localhost:5000/api/auth/login', infoUserLogin);
+                const token = res.data.token;
+                const role = res.data.role;
+
+                localStorage.setItem("token", token);
+                localStorage.setItem("role", role);
+
+                if (role === "ADMIN"){
+                    navigate("/admin/dashboard");
+                } else {
+                    navigate("/");
+                }
+            } catch {
                 setAuthError(true);
-                setPassword("");
                 setValidationError(false);
-
-                setIsErrorPassword(true);
                 setIsErrorUserName(true);
+                setIsErrorPassword(true);
 
+                setPassword("");
                 setTimeout(() => {
                     setIsErrorUserName(false);
                     setIsErrorPassword(false);
@@ -98,7 +114,7 @@ function Login(){
                             onChange={event => setPassword(event.target.value)}
                             value={password}
                             className={isErrorPassword ? "input-error" : ""}
-                        /> 
+                        />
 
                         <Button
                             type="button"
@@ -111,11 +127,11 @@ function Login(){
                             {btnTextPassword}
                         </Button>
                     </div>
-                    
-                    <Button 
-                        type="submit" 
-                        variant="primary" 
-                        width="90%" 
+
+                    <Button
+                        type="submit"
+                        variant="primary"
+                        width="90%"
                         height="48px"
                         className="btn-auth"
                     >
@@ -139,8 +155,8 @@ function Login(){
                         height="48px"
                         className="btn-login-google"
                     >
-                        <img src={logoGoogle} alt="Logo Google" width={"24px"}/>
-                        <p>Đăng nhập bằng Google</p>    
+                        <img src={logoGoogle} alt="Logo Google" width={"24px"} />
+                        <p>Đăng nhập bằng Google</p>
                     </Button>
 
                     <span>Nếu chưa có tài khoản? <Link to="/register">Đăng ký</Link></span>
@@ -153,15 +169,15 @@ function Login(){
 export default Login;
 
 function MessageError(validationError: boolean, authError: boolean) {
-    if (validationError === false && authError === false){
-        return null; 
+    if (validationError === false && authError === false) {
+        return null;
     } else if (validationError === true) {
         return (
             <div className="message-error">
                 <h4>Vui lòng nhập đầy đủ thông tin</h4>
             </div>
         )
-    }  else if (authError === true) {
+    } else if (authError === true) {
         return (
             <div className="message-error">
                 <h4>Tên đăng nhập hoặc mật khẩu không đúng</h4>

@@ -6,6 +6,7 @@ import logoGoogle from "../../assets/google-logo.png";
 import "./Auth.css";
 
 function Register() {
+    const [fullname, setFullname] = useState("");
     const [userName, setUserName] = useState("");
     const [password, setPassword] = useState("");
     const [rePassword, setRePassword] = useState("");
@@ -14,10 +15,37 @@ function Register() {
     const [address, setAddress] = useState("");
 
     const [isShowPassword, setIsShowPassword] = useState(false);
+    const [isShowRePassword, setIsShowRePassword] = useState(false);
     const [stateTypePassword, setTypePassword] = useState("password");
+    const [stateTypeRePassword, setTypeRePassword] = useState("password");
     const [btnTextPassword, setBtnTextPassword] = useState("Hiện");
     const [btnTextRePassword, setBtnTextRePassword] = useState("Hiện");
 
+    const handClickPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
+        event.preventDefault();
+        if (!isShowPassword) {
+            setIsShowPassword(true);
+            setTypePassword("text");
+            setBtnTextPassword("Ẩn");
+        } else {
+            setIsShowPassword(false);
+            setTypePassword("password");
+            setBtnTextPassword("Hiện");
+        }
+    }
+
+    const handClickRePassword = (event: React.MouseEvent<HTMLButtonElement>) => {
+        event.preventDefault();
+        if (!isShowRePassword) {
+            setIsShowRePassword(true);
+            setTypeRePassword("text");
+            setBtnTextRePassword("Ẩn");
+        } else {
+            setIsShowRePassword(false);
+            setTypeRePassword("password");
+            setBtnTextRePassword("Hiện");
+        }
+    }
 
     const handSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -29,6 +57,12 @@ function Register() {
             <div className="form-auth-group">
                 <form className="form-auth" onSubmit={handSubmit}>
                     <h1>Đăng ký</h1>
+                    <Input 
+                        type="text"
+                        label="Họ và tên"
+                        value={fullname}
+                        onChange={(event) => setFullname(event.target.value)}
+                    />
                     <Input
                         type="text"
                         label="Tên đăng nhập"
@@ -37,7 +71,7 @@ function Register() {
                     />
                     <div className="password-group">
                         <Input
-                            type="password"
+                            type={stateTypePassword}
                             label="Mật khẩu"
                             value={password}
                             onChange={(event) => setPassword(event.target.value)}
@@ -48,13 +82,14 @@ function Register() {
                             width="72px"
                             height="48px"
                             className="btn-show-password"
+                            onClick={handClickPassword}
                         >
                             {btnTextPassword}
                         </Button>
                     </div>
                     <div className="password-group">
                         <Input
-                            type="password"
+                            type={stateTypeRePassword}
                             label="Nhập lại mật khẩu"
                             value={rePassword}
                             onChange={(event) => setRePassword(event.target.value)}
@@ -65,6 +100,7 @@ function Register() {
                             width="72px"
                             height="48px"
                             className="btn-show-password"
+                            onClick={handClickRePassword}
                         >
                             {btnTextRePassword}
                         </Button>
