@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import Button from "../../component/ui/Button";
 import Input from "../../component/ui/Input";
 import "./Auth.css";
@@ -10,6 +10,9 @@ import axios from "axios";
 
 function Login() {
     const navigate = useNavigate();
+
+    const [searchParams] = useSearchParams();
+
     const [isShowPassword, setIsShowPassword] = useState(false);
     const [stateTypePassword, setTypePassword] = useState("password");
     const [btnTextPassword, setBtnTextPassword] = useState("Hiện");
@@ -22,6 +25,15 @@ function Login() {
 
     const [validationError, setValidationError] = useState(false);
     const [authError, setAuthError] = useState(false);
+    const [loginSuccess, setLoginSuccess] = useState(false);
+
+
+    useEffect(() => {
+        const userNameRegister = searchParams.get("userName");
+        if (userNameRegister) {
+            setUserName(userNameRegister);
+        }
+    }, [searchParams])
 
     const handClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         event.preventDefault();
@@ -71,11 +83,18 @@ function Login() {
 
                 localStorage.setItem("token", token);
                 localStorage.setItem("role", role);
+                setLoginSuccess(true);
+                setAuthError(false);
+                setValidationError(false);
 
-                if (role === "ADMIN"){
-                    navigate("/admin/dashboard");
+                if (role === "ADMIN") {
+                    setTimeout(() => {
+                        navigate("/admin/dashboard");
+                    }, 2000);
                 } else {
-                    navigate("/");
+                    setTimeout(() => {
+                        navigate("/");
+                    }, 2000);
                 }
             } catch {
                 setAuthError(true);
@@ -99,7 +118,7 @@ function Login() {
             <div className="form-auth-group">
                 <form className="form-auth" onSubmit={handSubmit}>
                     <h1>ĐĂNG NHẬP</h1>
-                    {MessageError(validationError, authError)}
+                    {MessageError(validationError, authError, loginSuccess)}
                     <Input
                         type="text"
                         label="Tên đăng nhập"
@@ -168,8 +187,8 @@ function Login() {
 
 export default Login;
 
-function MessageError(validationError: boolean, authError: boolean) {
-    if (validationError === false && authError === false) {
+function MessageError(validationError: boolean, authError: boolean, loginSuccess: boolean) {
+    if (validationError === false && authError === false && loginSuccess === false) {
         return null;
     } else if (validationError === true) {
         return (
@@ -181,6 +200,12 @@ function MessageError(validationError: boolean, authError: boolean) {
         return (
             <div className="message-error">
                 <h4>Tên đăng nhập hoặc mật khẩu không đúng</h4>
+            </div>
+        )
+    } else if (loginSuccess === true) {
+        return (
+            <div className="message-success">
+                <h4>Đăng nhập thành công</h4>
             </div>
         )
     }
