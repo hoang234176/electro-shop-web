@@ -22,3 +22,8 @@ body {
 input, button, textarea, select {
   font-family: var(--font-main);
 }
+
+body {
+  margin: 0;
+  padding: 0;
+}

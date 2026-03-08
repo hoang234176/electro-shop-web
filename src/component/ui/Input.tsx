@@ -4,9 +4,10 @@ import "./Input.css"
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
     className? : string,
     label? : string;
+    placeholder? : string;
 }
 
-const Input = ({label,className, ...props}: InputProps) => {
+const Input = ({label,className, placeholder, ...props}: InputProps) => {
     const generatedId = useId();
     return (
         <div className="input-group">
@@ -14,7 +15,7 @@ const Input = ({label,className, ...props}: InputProps) => {
                 {...props}
                 className={`ui-input ${className || ""}`}
                 id={generatedId}
-                placeholder=" "
+                placeholder={placeholder || " "}
             />
             <label htmlFor={generatedId} className="label-input">{label}</label>
         </div>

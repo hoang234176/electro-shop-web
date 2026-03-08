@@ -11,38 +11,66 @@ import ProductDetail from "../pages/product/ProductDetail";
 import InfoUser from "../pages/user/InfoUser";
 import EditUser from "../pages/user/EditUser";
 import TestUI from "../test/TestUI";
+import UserLayout from "../component/layout/UserLayout";
+import AdminLayout from "../component/layout/AdminLayout";
+import ProtectedRoute from "./ProtectedRoute";
+import Search from "../pages/home/Search";
 
 
-function ListRouter(){
+
+function ListRouter() {
     return (
         <Routes>
-            {/* home */}
-            <Route path='/' element={<Home />} />
+            <Route element={<UserLayout />}>
+                {/* home */}
+                <Route path='/' element={<Home />} />
 
-            {/* auth */}
-            <Route path='/login' element={<Login />} />
-            <Route path='/register' element={<Register />} />
+                {/* Search */}
+                <Route path='/search' element={<Search />} />
 
-            {/* admin */}
-            <Route path='/admin/dashboard' element={<Dashboard />} />
+                {/* category */}
+                <Route path='/category' element={<Home />} />
 
-            {/* cart */}
-            <Route path='/cart' element={<Cart />} />
+                {/* brand */}
+                <Route path='/brand' element={<Home />} />
+
+                {/* cart */}
+                <Route path='/cart' element={<Cart />} />
+
+                {/* product */}
+                <Route path='/product' element={<ProductDetail />} />
+
+                {/* user */}
+                <Route path='/user/info' element={<InfoUser />} />
+                <Route path='/user/edit' element={<EditUser />} />
+
+                {/* auth */}
+                <Route path='/login' element={<Login />} />
+                <Route path='/register' element={<Register />} />
+
+                {/* test */}
+                <Route path='test' element={<TestUI />} />
+
+            </Route>
 
             {/* error */}
             <Route path='/error403' element={<Error403 />} />
             <Route path='/error404' element={<Error404 />} />
             <Route path='/error500' element={<Error500 />} />
 
-            {/* product */}
-            <Route path='/product' element={<ProductDetail />} />
+            {/* admin */}
+            <Route element={
+                <>
+                    <AdminLayout />
+                    <ProtectedRoute allowRole="ADMIN" />
+                </>
+            }>
+                <Route path='/admin/dashboard' element={<Dashboard />} />
+                <Route path='/admin/product' element={<Dashboard />} />
+            </Route>
 
-            {/* user */}
-            <Route path='/user/info' element={<InfoUser />} />
-            <Route path='/user/edit' element={<EditUser />} />
-
-            {/* test */}
-            <Route path='test' element={<TestUI />} />
+            {/* Sai đường dẫn */}
+            <Route path='*' element={<Error404 />} />
         </Routes>
     )
 }

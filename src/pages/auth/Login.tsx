@@ -5,6 +5,7 @@ import Input from "../../component/ui/Input";
 import "./Auth.css";
 import logoGoogle from "../../assets/google-logo.png";
 import axios from "axios";
+import getRole from "../../utils/auth";
 
 
 
@@ -26,7 +27,6 @@ function Login() {
     const [validationError, setValidationError] = useState(false);
     const [authError, setAuthError] = useState(false);
     const [loginSuccess, setLoginSuccess] = useState(false);
-
 
     useEffect(() => {
         const userNameRegister = searchParams.get("userName");
@@ -79,21 +79,24 @@ function Login() {
 
                 const res = await axios.post('http://localhost:5000/api/auth/login', infoUserLogin);
                 const token = res.data.token;
-                const role = res.data.role;
 
                 localStorage.setItem("token", token);
-                localStorage.setItem("role", role);
+                
                 setLoginSuccess(true);
                 setAuthError(false);
                 setValidationError(false);
 
+                const role = getRole();
+
                 if (role === "ADMIN") {
                     setTimeout(() => {
                         navigate("/admin/dashboard");
+                        window.location.reload();
                     }, 2000);
                 } else {
                     setTimeout(() => {
                         navigate("/");
+                        window.location.reload();
                     }, 2000);
                 }
             } catch {
