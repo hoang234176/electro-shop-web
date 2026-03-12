@@ -1,7 +1,9 @@
+import Banner from "../../component/ui/Banner";
+
 function Home(){
     return (
         <div>
-            <h1>Trang chủ</h1>
+            <Banner/>
         </div>
     )
 }
