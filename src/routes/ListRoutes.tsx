@@ -10,7 +10,7 @@ import Error500 from "../pages/error/Error500";
 import ProductDetail from "../pages/product/ProductDetail";
 import InfoUser from "../pages/user/InfoUser";
 import EditUser from "../pages/user/EditUser";
-import TestUI from "../test/TestUI";
+// import TestUI from "../test/TestUI";
 import UserLayout from "../component/layout/UserLayout";
 import AdminLayout from "../component/layout/AdminLayout";
 import ProtectedRoute from "./ProtectedRoute";
@@ -47,10 +47,6 @@ function ListRouter() {
                 {/* auth */}
                 <Route path='/login' element={<Login />} />
                 <Route path='/register' element={<Register />} />
-
-                {/* test */}
-                <Route path='test' element={<TestUI />} />
-
             </Route>
 
             {/* error */}
