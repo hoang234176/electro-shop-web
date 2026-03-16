@@ -1,0 +1,100 @@
+.category-page-container {
+    display: flex;
+    gap: 30px;
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+    font-family: 'Inter', sans-serif;
+}
+
+/* --- Sidebar Bộ lọc --- */
+.filter-sidebar {
+    flex: 0 0 250px; /* Không co giãn, chiều rộng cố định 250px */
+    background-color: #f9fafb;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    align-self: flex-start; /* Căn lề trên cùng */
+    height: fit-content;
+}
+
+.filter-group {
+    margin-bottom: 24px;
+}
+
+.filter-group:last-child {
+    margin-bottom: 0;
+}
+
+.filter-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.filter-option {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.filter-option label {
+    margin-left: 8px;
+    font-size: 14px;
+    color: #374151;
+    cursor: pointer;
+}
+
+.filter-option input[type="checkbox"],
+.filter-option input[type="radio"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: #0284c7;
+}
+
+/* --- Main Content: Danh sách sản phẩm --- */
+.product-list-main {
+    flex: 1; /* Chiếm hết không gian còn lại */
+}
+
+.list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.page-title {
+    font-size: 28px;
+    font-weight: 800;
+    color: #111827;
+}
+
+.sort-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+
+.sort-select {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #d1d5db;
+    background-color: #fff;
+    font-size: 14px;
+}
+
+.no-products-found {
+    grid-column: 1 / -1; /* Trải dài hết các cột */
+    text-align: center;
+    padding: 40px;
+    font-size: 18px;
+    color: #6b7280;
+}

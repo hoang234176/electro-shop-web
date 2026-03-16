@@ -1,0 +1,81 @@
+/* --- KHUNG TRANG CHỦ TỔNG --- */
+.home-container {
+    width: 100%;
+    max-width: 1200px; 
+    margin: 0 auto;
+    padding: 0 20px;
+    font-family: 'Inter', sans-serif; /* Font chữ hiện đại */
+}
+
+.home-section {
+    margin-top: 40px;
+    margin-bottom: 60px;
+}
+
+.section-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: #111827;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-transform: uppercase;
+}
+
+/* --- KHU VỰC DANH MỤC NỔI BẬT --- */
+.category-list {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    flex-wrap: wrap;
+}
+
+.category-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    width: 100px;
+}
+
+.category-item:hover {
+    transform: translateY(-8px); /* Nảy lên khi trỏ chuột */
+}
+
+.category-icon {
+    width: 72px;
+    height: 72px;
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 50%; /* Bo tròn hoàn toàn */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 32px;
+    margin-bottom: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    transition: all 0.2s ease;
+}
+
+/* Đổi màu viền icon khi trỏ chuột vào */
+.category-item:hover .category-icon {
+    border-color: #0284c7;
+    box-shadow: 0 8px 15px rgba(2, 132, 199, 0.15);
+}
+
+.category-name {
+    font-weight: 600;
+    font-size: 15px;
+    color: #374151;
+    text-align: center;
+}
+
+/* --- LƯỚI SẢN PHẨM (GRID) --- */
+.product-grid {
+    display: grid;
+    /* Tự động chia cột: màn to thì 4 cột, màn nhỏ thì 2 hoặc 1 cột */
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 24px; 
+}

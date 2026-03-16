@@ -51,7 +51,7 @@ function BannerList() {
     }, []);
 
     return (
-        <div style={{ padding: '40px 20px', backgroundColor: '#f9f9f9' }}>
+        <div style={{ padding: '40px 20px'}}>
             <div className="banner-wrapper">
                 
                 {/* Nút Trái */}
