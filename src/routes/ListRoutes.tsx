@@ -16,6 +16,7 @@ import AdminLayout from "../component/layout/AdminLayout";
 import ProtectedRoute from "./ProtectedRoute";
 import Search from "../pages/home/Search";
 import Category from "../pages/home/Category";
+import Brand from "../pages/home/Brand";
 
 
 
@@ -33,7 +34,7 @@ function ListRouter() {
                 <Route path='/category' element={<Category />} />
 
                 {/* brand */}
-                <Route path='/brand' element={<Home />} />
+                <Route path='/brand' element={<Brand />} />
 
                 {/* cart */}
                 <Route path='/cart' element={<Cart />} />
