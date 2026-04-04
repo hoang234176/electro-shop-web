@@ -1,6 +1,7 @@
 import axios from "axios";
-import { API_BASE_URL } from "./apiServices";
 import { getToken } from "../utils/tokenUtils";
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
 export const GetAllUser = async () => {
     try {

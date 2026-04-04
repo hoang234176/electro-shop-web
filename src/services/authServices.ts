@@ -1,6 +1,7 @@
 import axios from "axios"
 import { getRole, setToken } from "../utils/tokenUtils";
-import { API_BASE_URL } from "./apiServices";
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
 export interface LoginResponse{
     token: string,
