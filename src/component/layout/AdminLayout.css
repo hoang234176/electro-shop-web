@@ -1,0 +1,21 @@
+.admin-layout-container {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    background-color: #f9fafb; /* Nền xám rất nhạt cho vùng làm việc */
+    font-family: 'Inter', sans-serif;
+}
+
+.admin-main-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.admin-main-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+}

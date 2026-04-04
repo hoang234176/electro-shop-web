@@ -9,12 +9,14 @@
 
 /* --- Sidebar Bộ lọc --- */
 .filter-sidebar {
-    flex: 0 0 250px; /* Không co giãn, chiều rộng cố định 250px */
+    flex: 0 0 250px;
+    /* Không co giãn, chiều rộng cố định 250px */
     background-color: #f9fafb;
     padding: 20px;
     border-radius: 8px;
     border: 1px solid #e5e7eb;
-    align-self: flex-start; /* Căn lề trên cùng */
+    align-self: flex-start;
+    /* Căn lề trên cùng */
     height: fit-content;
 }
 
@@ -58,7 +60,8 @@
 
 /* --- Main Content: Danh sách sản phẩm --- */
 .product-list-main {
-    flex: 1; /* Chiếm hết không gian còn lại */
+    flex: 1;
+    /* Chiếm hết không gian còn lại */
 }
 
 .list-header {
@@ -92,7 +95,8 @@
 }
 
 .no-products-found {
-    grid-column: 1 / -1; /* Trải dài hết các cột */
+    grid-column: 1 / -1;
+    /* Trải dài hết các cột */
     text-align: center;
     padding: 40px;
     font-size: 18px;

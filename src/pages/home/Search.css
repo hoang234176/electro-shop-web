@@ -1,0 +1,110 @@
+.search-page-container {
+    display: flex;
+    gap: 30px;
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+    font-family: 'Inter', sans-serif;
+}
+
+/* --- SIDEBAR BỘ LỌC --- */
+.filter-sidebar {
+    flex: 0 0 260px;
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 24px 20px;
+    height: fit-content;
+}
+
+.filter-group {
+    margin-bottom: 24px;
+}
+
+.filter-group:last-child {
+    margin-bottom: 0;
+}
+
+.filter-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 16px;
+    text-transform: uppercase;
+}
+
+.filter-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    font-size: 15px;
+    color: #374151;
+    cursor: pointer;
+}
+
+.filter-option input[type="radio"],
+.filter-option input[type="checkbox"] {
+    cursor: pointer;
+    width: 16px;
+    height: 16px;
+    accent-color: #0284c7;
+}
+
+/* --- KHU VỰC SẢN PHẨM CHÍNH --- */
+.product-list-main {
+    flex: 1;
+}
+
+.list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    background-color: #ffffff;
+    padding: 16px 24px;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+}
+
+.page-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #111827;
+    margin: 0;
+}
+
+.keyword-highlight {
+    color: #0284c7;
+}
+
+.sort-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    color: #374151;
+}
+
+.sort-select {
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    outline: none;
+    font-family: inherit;
+    background-color: #f9fafb;
+    cursor: pointer;
+}
+
+.no-products-found {
+    text-align: center;
+    padding: 60px 20px;
+    background-color: #f9fafb;
+    border: 1px dashed #d1d5db;
+    border-radius: 12px;
+    color: #4b5563;
+    font-size: 16px;
+    line-height: 1.6;
+    grid-column: 1 / -1;
+    /* Ép thẻ trải dài toàn bộ lưới Grid */
+}

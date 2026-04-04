@@ -1,10 +1,11 @@
 /* --- KHUNG TRANG CHỦ TỔNG --- */
 .home-container {
     width: 100%;
-    max-width: 1200px; 
+    max-width: 1200px;
     margin: 0 auto;
     padding: 0 20px;
-    font-family: 'Inter', sans-serif; /* Font chữ hiện đại */
+    font-family: 'Inter', sans-serif;
+    /* Font chữ hiện đại */
 }
 
 .home-section {
@@ -41,7 +42,8 @@
 }
 
 .category-item:hover {
-    transform: translateY(-8px); /* Nảy lên khi trỏ chuột */
+    transform: translateY(-8px);
+    /* Nảy lên khi trỏ chuột */
 }
 
 .category-icon {
@@ -49,13 +51,14 @@
     height: 72px;
     background-color: #ffffff;
     border: 1px solid #e5e7eb;
-    border-radius: 50%; /* Bo tròn hoàn toàn */
+    border-radius: 50%;
+    /* Bo tròn hoàn toàn */
     display: flex;
     justify-content: center;
     align-items: center;
     font-size: 32px;
     margin-bottom: 12px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
     transition: all 0.2s ease;
 }
 
@@ -77,5 +80,5 @@
     display: grid;
     /* Tự động chia cột: màn to thì 4 cột, màn nhỏ thì 2 hoặc 1 cột */
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 24px; 
+    gap: 24px;
 }

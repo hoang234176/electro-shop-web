@@ -3,9 +3,13 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import Button from "../../component/ui/Button";
 import Input from "../../component/ui/Input";
 import "./Auth.css";
+import Loading from "../../component/ui/Loading";
 import logoGoogle from "../../assets/google-logo.png";
-import axios from "axios";
-import getRole from "../../utils/auth";
+// import axios from "axios";
+// import getRole from "../../utils/tokenUtils";
+import { loginReq, type LoginError } from "../../services/authServices";
+// import { useGoogleLogin } from "@react-oauth/google";
+// import { loginGoogleReq } from "../../services/authServices";
 
 
 
@@ -27,6 +31,12 @@ function Login() {
     const [validationError, setValidationError] = useState(false);
     const [authError, setAuthError] = useState(false);
     const [loginSuccess, setLoginSuccess] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+
+    // Cuộn lên đầu trang khi vào trang
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
 
     useEffect(() => {
         const userNameRegister = searchParams.get("userName");
@@ -34,6 +44,36 @@ function Login() {
             setUserName(userNameRegister);
         }
     }, [searchParams])
+
+    /*
+    const loginWithGoogle = useGoogleLogin({
+        onSuccess: async (tokenResponse) => {
+            try {
+                // Gửi access_token lấy được từ Google xuống Backend
+                const roleLogin = await loginGoogleReq(tokenResponse.access_token);
+                
+                setLoginSuccess(true);
+                setAuthError(false);
+                setValidationError(false);
+
+                if (roleLogin === "ADMIN") {
+                    setTimeout(() => {
+                        navigate("/admin/dashboard");
+                        window.location.reload();
+                    }, 2000);
+                } else {
+                    setTimeout(() => {
+                        navigate("/");
+                        window.location.reload();
+                    }, 2000);
+                }
+            } catch (error) {
+                setAuthError(true);
+            }
+        },
+        onError: error => console.error("Google Login Failed:", error)
+    });
+    */
 
     const handClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         event.preventDefault();
@@ -51,7 +91,9 @@ function Login() {
     const handSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
-        const isUserEmpty = userName.trim() === "";
+        const trimmedUserName = userName.trim();
+
+        const isUserEmpty = trimmedUserName === "";
         const isPassEmpty = password.trim() === "";
 
         if (isUserEmpty || isPassEmpty) {
@@ -72,34 +114,30 @@ function Login() {
             }, 200);
         } else {
             try {
-                const infoUserLogin = {
-                    userName: userName,
-                    password: password
-                }
-
-                const res = await axios.post('http://localhost:5000/api/auth/login', infoUserLogin);
-                const token = res.data.token;
-
-                localStorage.setItem("token", token);
+                setIsLoading(true);
+                const roleLogin = await loginReq({ userName: trimmedUserName, password });
                 
                 setLoginSuccess(true);
                 setAuthError(false);
                 setValidationError(false);
 
-                const role = getRole();
-
-                if (role === "ADMIN") {
+                if (roleLogin === "ADMIN") {
                     setTimeout(() => {
                         navigate("/admin/dashboard");
-                        window.location.reload();
+                        window.dispatchEvent(new Event("authChanged")); // Phát sự kiện để Header tự cập nhật
                     }, 2000);
                 } else {
                     setTimeout(() => {
                         navigate("/");
-                        window.location.reload();
+                        window.dispatchEvent(new Event("authChanged")); // Phát sự kiện để Header tự cập nhật
                     }, 2000);
                 }
-            } catch {
+            } catch (error) {
+                setIsLoading(false);
+                const errorInfo = error as LoginError;
+                if (errorInfo.status === 500){
+                    navigate("/error500");
+                }
                 setAuthError(true);
                 setValidationError(false);
                 setIsErrorUserName(true);
@@ -115,9 +153,20 @@ function Login() {
 
     }
 
+    const handleForgotPassword = (e: React.MouseEvent) => {
+        e.preventDefault();
+        setIsLoading(true);
+        setTimeout(() => {
+            navigate("/forgot-password", { state: { username: userName } });
+        }, 800); // Hiển thị UI loading 800ms trước khi chuyển trang
+    };
 
     return (
         <div className="auth-container">
+            {isLoading && <Loading 
+                fullScreen={true} 
+                progress={loginSuccess ? 100 : undefined} 
+            />}
             <div className="form-auth-group">
                 <form className="form-auth" onSubmit={handSubmit}>
                     <h1>ĐĂNG NHẬP</h1>
@@ -156,11 +205,12 @@ function Login() {
                         width="90%"
                         height="48px"
                         className="btn-auth"
+                        disabled={isLoading}
                     >
-                        Đăng nhập
+                        {isLoading ? "Đang xử lý..." : "Đăng nhập"}
                     </Button>
-                    <div className="forgot-password-group">
-                        <p>Quên mật khẩu?</p>
+                    <div className="forgot-password-group" style={{ marginBottom: "24px" }}>
+                        <Link to="/forgot-password" onClick={handleForgotPassword}>Quên mật khẩu?</Link>
                     </div>
                 </form>
 
@@ -170,16 +220,19 @@ function Login() {
                 </div>
 
                 <div className="login-other">
+                    {/*
                     <Button
                         type="button"
                         variant="secondary"
                         width="100%"
                         height="48px"
                         className="btn-login-google"
+                        onClick={() => loginWithGoogle()}
                     >
                         <img src={logoGoogle} alt="Logo Google" width={"24px"} />
                         <p>Đăng nhập bằng Google</p>
                     </Button>
+                    */}
 
                     <span>Nếu chưa có tài khoản? <Link to="/register">Đăng ký</Link></span>
                 </div>

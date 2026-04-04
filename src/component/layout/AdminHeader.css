@@ -1,0 +1,59 @@
+.admin-header {
+    height: 70px;
+    background-color: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+}
+
+.admin-page-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #111827;
+    margin: 0;
+}
+
+.admin-header-right {
+    display: flex;
+    align-items: center;
+}
+
+.admin-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.admin-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #e5e7eb;
+}
+
+.admin-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+}
+
+.admin-store-link {
+    margin-left: 16px;
+    text-decoration: none;
+    font-size: 14px;
+    color: #0284c7;
+    background-color: #f0f9ff;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.admin-store-link:hover {
+    background-color: #e0f2fe;
+    color: #0369a1;
+}

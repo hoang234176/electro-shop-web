@@ -1,0 +1,80 @@
+/* Tận dụng lại các class chuẩn đã có trong ProductManagement.css */
+/* Dưới đây là các CSS bổ sung riêng cho trang OrderManagement */
+
+.font-semibold {
+    font-weight: 600;
+    color: #111827;
+}
+
+.text-sm {
+    font-size: 13px;
+}
+
+.text-gray {
+    color: #6b7280;
+}
+
+.admin-filter-group {
+    display: flex;
+    align-items: center;
+}
+
+.admin-filter-select {
+    padding: 10px 16px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    outline: none;
+    font-family: inherit;
+    font-size: 14px;
+    color: #374151;
+    background-color: #ffffff;
+    cursor: pointer;
+}
+
+/* SELECT TRẠNG THÁI (STATUS SELECT) */
+.status-select {
+    padding: 6px 10px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    border: 1px solid transparent;
+    outline: none;
+    cursor: pointer;
+    font-family: inherit;
+    appearance: none;
+    /* Ẩn mũi tên mặc định để trông giống badge */
+}
+
+.status-select:disabled {
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
+.badge-warning {
+    background-color: #fef3c7;
+    color: #d97706;
+}
+
+.badge-info {
+    background-color: #eff6ff;
+    color: #2563eb;
+}
+
+.badge-success {
+    background-color: #dcfce3;
+    color: #16a34a;
+}
+
+.badge-danger {
+    background-color: #fee2e2;
+    color: #ef4444;
+}
+
+.badge-secondary {
+    background-color: #f3f4f6;
+    color: #4b5563;
+}
+
+.status-select:focus {
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+}

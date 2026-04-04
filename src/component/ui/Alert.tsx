@@ -2,7 +2,7 @@ import React from "react";
 import "./Alert.css"
 
 
-interface AlertProps {
+export interface AlertProps {
     show: boolean,
     title?: "" | "THÔNG BÁO" | "CẢNH BÁO" | "LỖI" ,
     type: 'success' | 'error' | 'warning' | 'info',

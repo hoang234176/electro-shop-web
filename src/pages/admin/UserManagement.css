@@ -1,0 +1,43 @@
+/* Kế thừa cấu trúc từ các trang Admin khác */
+
+.font-semibold {
+    font-weight: 600;
+    color: #111827;
+}
+
+.text-sm {
+    font-size: 13px;
+}
+
+.text-gray {
+    color: #6b7280;
+}
+
+.status-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.badge-purple {
+    background-color: #f3e8ff;
+    color: #7e22ce;
+}
+
+/* Các màu khác tái sử dụng từ OrderManagement nếu cần, ở đây định nghĩa lại cho chắc chắn */
+.badge-success {
+    background-color: #dcfce3;
+    color: #16a34a;
+}
+
+.badge-danger {
+    background-color: #fee2e2;
+    color: #ef4444;
+}
+
+.badge-secondary {
+    background-color: #f3f4f6;
+    color: #4b5563;
+}

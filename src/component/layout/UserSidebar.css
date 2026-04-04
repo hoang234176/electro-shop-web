@@ -1,0 +1,131 @@
+/* --- SIDEBAR --- */
+.user-sidebar {
+    flex: 0 0 260px;
+    background-color: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 24px 20px;
+    height: fit-content;
+}
+
+.sidebar-profile {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.profile-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #e5e7eb;
+}
+
+.profile-brief {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.profile-name {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.profile-edit-link a {
+    font-size: 13px;
+    color: #6b7280;
+    text-decoration: none;
+}
+
+.profile-edit-link a:hover {
+    color: #0284c7;
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.nav-item {
+    padding: 12px 16px;
+    border-radius: 8px;
+    color: #374151;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.nav-item:hover {
+    background-color: #f3f4f6;
+    color: #0284c7;
+}
+
+.nav-item.active {
+    background-color: #f0f9ff;
+    color: #0284c7;
+}
+
+/* --- CSS CHO SUBMENU ĐƠN HÀNG --- */
+.nav-item-wrapper {
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-submenu {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding-left: 28px; /* Thụt lề vào trong cho nhánh con */
+    margin-top: 4px;
+}
+
+.submenu-item {
+    padding: 10px 16px;
+    border-radius: 8px;
+    color: #6b7280;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.submenu-item:hover {
+    background-color: #f3f4f6;
+    color: #0284c7;
+}
+
+.submenu-item.active {
+    background-color: #e0f2fe;
+    color: #0284c7;
+    font-weight: 600;
+}
+
+.toggle-icon {
+    font-size: 10px;
+    transition: transform 0.3s ease;
+}
+
+.toggle-icon.open {
+    transform: rotate(180deg);
+}
+
+.sidebar-badge {
+    background-color: #ef4444;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 12px;
+}

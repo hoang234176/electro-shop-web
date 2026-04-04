@@ -1,22 +1,11 @@
-import { useState, useMemo } from "react";
-import { useLocation } from "react-router-dom";
+import { useState, useEffect, useMemo } from "react";
+import { useLocation, Link, useNavigate } from "react-router-dom";
 import ProductCard from "../../component/ui/ProductCard";
+import { getAllProducts } from "../../services/productServices";
+import Loading from "../../component/ui/Loading";
 import "./Category.css";
 
-// Dữ liệu mẫu (sau này sẽ lấy từ API)
-const allProducts = [
-    { id: 1, category: "Điện thoại", name: "iPhone 15 Pro Max 256GB", price: 29990000, imageUrl: "https://res.cloudinary.com/dygh4jakc/image/upload/v123456/ElectroShop/Products/iphone15_1.jpg", rating: 5 },
-    { id: 2, category: "Laptop", name: "MacBook Pro M3 14-inch", price: 39990000, imageUrl: "https://res.cloudinary.com/dygh4jakc/image/upload/v123456/ElectroShop/Products/macbook_pro.jpg", rating: 5 },
-    { id: 3, category: "Tai nghe", name: "Tai nghe Sony WH-1000XM5", price: 7490000, imageUrl: "https://res.cloudinary.com/dygh4jakc/image/upload/v123456/ElectroShop/Products/sony_headphone.jpg", rating: 4 },
-    { id: 4, category: "Đồng hồ", name: "Apple Watch Series 9", price: 10490000, imageUrl: "https://res.cloudinary.com/dygh4jakc/image/upload/v123456/ElectroShop/Products/apple_watch.jpg", rating: 5 },
-    { id: 5, category: "Điện thoại", name: "Samsung Galaxy S24 Ultra", price: 33990000, imageUrl: "https://res.cloudinary.com/dygh4jakc/image/upload/v123456/ElectroShop/Products/s24_ultra.jpg", rating: 5 },
-    { id: 6, category: "Laptop", name: "Dell XPS 15 (2023)", price: 45000000, imageUrl: "https://res.cloudinary.com/dygh4jakc/image/upload/v123456/ElectroShop/Products/dell_xps.jpg", rating: 4 },
-    { id: 7, category: "Phụ kiện", name: "Sạc nhanh Anker 65W", price: 850000, imageUrl: "https://res.cloudinary.com/dygh4jakc/image/upload/v123456/ElectroShop/Products/anker_charger.jpg", rating: 5 },
-    { id: 8, category: "Màn hình", name: "LG UltraGear 27 inch", price: 8990000, imageUrl: "https://res.cloudinary.com/dygh4jakc/image/upload/v123456/ElectroShop/Products/lg_monitor.jpg", rating: 4 },
-    { id: 9, category: "Điện thoại", name: "Google Pixel 8 Pro", price: 24990000, imageUrl: "https://res.cloudinary.com/dygh4jakc/image/upload/v123456/ElectroShop/Products/pixel8.jpg", rating: 4 },
-    { id: 10, category: "Tai nghe", name: "AirPods Pro 2", price: 5990000, imageUrl: "https://res.cloudinary.com/dygh4jakc/image/upload/v123456/ElectroShop/Products/airpods_pro.jpg", rating: 5 },
-];
-
+// Có thể lấy động từ backend sau
 const categories = ["Điện thoại", "Laptop", "Tai nghe", "Đồng hồ", "Phụ kiện", "Màn hình"];
 
 // Hook helper lấy query param
@@ -26,6 +15,8 @@ function useQuery() {
 
 function Category() {
     const query = useQuery();
+    const navigate = useNavigate();
+    const [isNavigating, setIsNavigating] = useState(false);
     const categoryFromUrl = query.get("name");
 
     const [selectedCategories, setSelectedCategories] = useState<string[]>(() =>
@@ -33,6 +24,35 @@ function Category() {
     );
     const [priceRange, setPriceRange] = useState<string>("all");
     const [sortBy, setSortBy] = useState<string>("default");
+
+    const [allProducts, setAllProducts] = useState<any[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchProducts = async () => {
+            setIsLoading(true);
+            try {
+                const data = await getAllProducts();
+                const formattedData = data.map((p: any) => ({
+                    id: p._id,
+                    brand: p.brand?.name || 'Unknown',
+                    category: p.category?.name || 'Unknown',
+                    name: p.name,
+                    price: p.price,
+                    imageUrl: p.variants?.[0]?.image || 'https://via.placeholder.com/300?text=No+Image',
+                    rating: p.rating || 0,
+                    reviewCount: p.reviewCount || 0,
+                    isOutOfStock: (p.variants?.reduce((sum: number, v: any) => sum + (v.quantity || 0), 0) || 0) <= 0
+                }));
+                setAllProducts(formattedData);
+            } catch (error) {
+                console.error("Lỗi khi tải sản phẩm:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchProducts();
+    }, []);
 
     // Tính danh sách sản phẩm đã filter + sort
     const filteredProducts = useMemo(() => {
@@ -68,7 +88,7 @@ function Category() {
                     return a.id - b.id;
             }
         });
-    }, [selectedCategories, priceRange, sortBy]);
+    }, [allProducts, selectedCategories, priceRange, sortBy]);
 
     const handleCategoryChange = (category: string) => {
         setSelectedCategories((prev) =>
@@ -78,8 +98,18 @@ function Category() {
         );
     };
 
+    const handleProductClick = (e: React.MouseEvent, productId: string) => {
+        e.preventDefault();
+        setIsNavigating(true);
+        setTimeout(() => {
+            setIsNavigating(false);
+            navigate(`/product/${productId}`);
+        }, 800);
+    };
+
     return (
         <div className="category-page-container">
+            {isNavigating && <Loading fullScreen={true} />}
             <aside className="filter-sidebar">
                 <div className="filter-group">
                     <h3 className="filter-title">Danh Mục Sản Phẩm</h3>
@@ -169,15 +199,21 @@ function Category() {
                 </div>
 
                 <div className="product-grid">
-                    {filteredProducts.length > 0 ? (
+                    {isLoading ? (
+                        <p>Đang tải dữ liệu...</p>
+                    ) : filteredProducts.length > 0 ? (
                         filteredProducts.map((product) => (
-                            <ProductCard
-                                key={product.id}
-                                name={product.name}
-                                price={product.price}
-                                imageUrl={product.imageUrl}
-                                rating={product.rating}
-                            />
+                            <Link to={`/product/${product.id}`} key={product.id} style={{ textDecoration: 'none', color: 'inherit' }} onClick={(e) => handleProductClick(e, product.id)}>
+                                <ProductCard
+                                    id={product.id}
+                                    name={product.name}
+                                    price={product.price}
+                                    imageUrl={product.imageUrl}
+                                    rating={product.rating}
+                                    reviewCount={product.reviewCount}
+                                    isOutOfStock={product.isOutOfStock}
+                                />
+                            </Link>
                         ))
                     ) : (
                         <p className="no-products-found">

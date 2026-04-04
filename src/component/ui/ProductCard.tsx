@@ -1,15 +1,21 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import './ProductCard.css';
 
 // Định nghĩa kiểu dữ liệu truyền vào
 interface ProductCardProps {
+    id?: string;
     name: string;
     price: number;
     imageUrl: string;
-    rating?: number; 
+    rating?: number;
+    reviewCount?: number;
+    isOutOfStock?: boolean;
 }
 
-function ProductCard({ name, price, imageUrl, rating = 5 }: ProductCardProps) {
+function ProductCard({ id, name, price, imageUrl, rating = 0, reviewCount = 0, isOutOfStock }: ProductCardProps) {
+    const navigate = useNavigate();
+
     // 1. Hàm format tiền Việt Nam
     const formatCurrency = (amount: number) => {
         return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
@@ -18,22 +24,34 @@ function ProductCard({ name, price, imageUrl, rating = 5 }: ProductCardProps) {
     // 2. Hàm in ra số lượng sao đánh giá
     const renderStars = () => {
         const stars = [];
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < 5; i++) {
             stars.push(<span key={i}>{i < rating ? '★' : '☆'}</span>);
         }
         return stars;
     };
 
-    // 3. Xử lý sự kiện bấm nút Thêm vào giỏ
-    const handleAddToCart = (e: React.MouseEvent) => {
-        e.stopPropagation(); // Ngăn click lan ra ngoài
-        alert(`Đã thêm [${name}] vào giỏ hàng của bạn! 🛒`);
-    };
-
-    // 4. Xử lý sự kiện bấm nút Mua ngay
+    // 3. Xử lý sự kiện bấm nút Mua ngay
     const handleBuyNow = (e: React.MouseEvent) => {
+        e.preventDefault(); // Ngăn thẻ <Link> bọc bên ngoài kích hoạt chuyển hướng
         e.stopPropagation();
-        alert(`Chuyển hướng đến trang thanh toán cho [${name}]! 🚀`);
+        const isLoggedIn = !!localStorage.getItem("token");
+        if (!isLoggedIn) {
+            navigate("/login");
+            return;
+        }
+        
+        if (id) {
+            const buyNowItem = {
+                compositeId: `${id}_Mặc định`,
+                productId: id,
+                color: "Mặc định",
+                name: name,
+                price: price,
+                imageUrl: imageUrl,
+                quantity: 1
+            };
+            navigate("/checkout", { state: { selectedItems: [buyNowItem] } });
+        }
     };
 
     return (
@@ -48,7 +66,14 @@ function ProductCard({ name, price, imageUrl, rating = 5 }: ProductCardProps) {
                 <h3 className="product-name">{name}</h3>
                 
                 <div className="product-rating">
-                    {renderStars()}
+                    {reviewCount > 0 ? (
+                        <>
+                            {renderStars()}
+                            <span className="review-count-text">({reviewCount} đánh giá)</span>
+                        </>
+                    ) : (
+                        <span className="no-review-text">Chưa có đánh giá sản phẩm</span>
+                    )}
                 </div>
 
                 {/* --- HÀNG 1: Giá tiền --- */}
@@ -58,25 +83,21 @@ function ProductCard({ name, price, imageUrl, rating = 5 }: ProductCardProps) {
                  
                 {/* --- HÀNG 2: Hai nút bấm --- */}
                 <div className="product-actions">
-                    {/* Nút Giỏ hàng (Icon SVG) */}
-                    <button className="cart-btn" onClick={handleAddToCart} title="Thêm vào giỏ hàng">
-                        <svg 
-                            xmlns="http://www.w3.org/2000/svg" 
-                            width="20" height="20" 
-                            viewBox="0 0 24 24" fill="none" 
-                            stroke="currentColor" strokeWidth="2" 
-                            strokeLinecap="round" strokeLinejoin="round"
-                        >
-                            <circle cx="9" cy="21" r="1"></circle>
-                            <circle cx="20" cy="21" r="1"></circle>
-                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-                        </svg>
-                    </button>
-                    
                     {/* Nút Mua ngay */}
-                    <button className="buy-btn" onClick={handleBuyNow}>
-                        Mua ngay
-                    </button>
+                    {isOutOfStock ? (
+                        <button 
+                            className="buy-btn" 
+                            disabled 
+                            style={{ backgroundColor: '#9ca3af', cursor: 'not-allowed' }}
+                            onClick={(e) => e.preventDefault()} // Ngăn chặn chuyển trang khi click vào nút
+                        >
+                            Đã hết hàng
+                        </button>
+                    ) : (
+                        <button className="buy-btn" onClick={handleBuyNow}>
+                            Mua ngay
+                        </button>
+                    )}
                 </div>
             </div>
         </div>
