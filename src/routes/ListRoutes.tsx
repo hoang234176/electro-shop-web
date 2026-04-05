@@ -14,7 +14,6 @@ import Error500 from "../pages/error/Error500";
 import ProductDetail from "../pages/product/ProductDetail";
 import InfoUser from "../pages/user/InfoUser";
 import EditUser from "../pages/user/EditUser";
-import TestUI from "../test/TextUI";
 import UserLayout from "../component/layout/UserLayout";
 import AdminLayout from "../component/layout/AdminLayout";
 import ProtectedRoute from "./ProtectedRoute";
@@ -95,7 +94,6 @@ function ListRouter() {
             {/* Sai đường dẫn */}
             <Route path='*' element={<Error404 />} />
 
-            /* <Route path='/test' element={<TestUI />} /> 
         </Routes>
     )
 }
