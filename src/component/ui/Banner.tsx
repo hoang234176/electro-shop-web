@@ -110,9 +110,12 @@ function BannerList({ newProducts }: BannerProps) {
                                         right: '2%', 
                                         top: '50%', 
                                         transform: 'translateY(-50%)', 
-                                        maxHeight: '95%', 
+                                        maxHeight: '90%', 
                                         maxWidth: '45%', 
                                         objectFit: 'contain',
+                                        backgroundColor: '#ffffff',
+                                        padding: '15px',
+                                        borderRadius: '12px',
                                         zIndex: 2,
                                         filter: 'drop-shadow(0 10px 15px rgba(0,0,0,0.2))' 
                                     }} 

@@ -263,6 +263,7 @@ function AddProduct() {
                                 <option value="Tai nghe">Tai nghe</option>
                                 <option value="Đồng hồ">Đồng hồ</option>
                                 <option value="Phụ kiện">Phụ kiện</option>
+                                <option value="Màn hình">Màn hình</option>
                             </select>
                         </div>
                         <div className="form-group-admin">
@@ -273,8 +274,8 @@ function AddProduct() {
                                 <option value="Samsung">Samsung</option>
                                 <option value="Sony">Sony</option>
                                 <option value="Dell">Dell</option>
-                                <option value="Anker">Anker</option>
                                 <option value="LG">LG</option>
+                                <option value="Google">Google</option>
                             </select>
                         </div>
                         <div className="form-group-admin import-price">

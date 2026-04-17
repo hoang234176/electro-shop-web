@@ -8,6 +8,7 @@ import searchIcon from "../../assets/search-icon.png";
 import { logout } from "../../services/authServices";
 import { getCart } from "../../services/cartServices";
 import Loading from "../ui/Loading";
+import { clearUserCache } from "../../hooks/useUserData";
 
 function Header() {
     const navigate = useNavigate();
@@ -125,9 +126,10 @@ function Header() {
         setIsLoading(true);
         setTimeout(() => {
             logout();
+            clearUserCache(); // Xóa dữ liệu user đang lưu đệm trên RAM
             window.dispatchEvent(new Event("authChanged")); // Báo cho Header biết đã đăng xuất
             setIsLoading(false);
-            navigate("/login");
+            navigate("/login", { replace: true, state: null }); // Xóa state của location và thay thế lịch sử route
         }, 800);
     };
 

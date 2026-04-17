@@ -6,7 +6,7 @@ import Loading from "../../component/ui/Loading";
 import "./Brand.css";
 
 // Có thể thay đổi danh sách thương hiệu này bằng cách gọi API lấy danh sách thương hiệu (nếu có)
-const brands = ["Apple", "Samsung", "Sony", "Dell", "Anker", "LG", "Google"];
+const brands = ["Apple", "Samsung", "Sony", "Dell", "LG", "Google"];
 
 // Hook helper lấy query param (trường hợp click từ trang chủ vào /brand?name=Apple)
 function useQuery() {

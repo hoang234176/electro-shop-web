@@ -75,7 +75,10 @@ Tôi đang xem sản phẩm: "${currentProduct.name}".
 Danh sách các sản phẩm khác trong cửa hàng:
 ${availableProducts.map((p: any) => `- ID: ${p._id || p.id}, Tên: ${p.name}`).join('\n')}
 
-Dựa vào danh sách trên, hãy chọn ra tối đa 4 sản phẩm là phụ kiện hoặc sản phẩm liên quan phù hợp và tương thích với sản phẩm tôi đang xem. KHÔNG đề xuất sản phẩm không liên quan hoặc phụ kiện của hãng đối thủ (ví dụ: không đề xuất sạc Samsung cho iPhone).
+Dựa vào danh sách trên, hãy chọn ra tối đa 4 sản phẩm là phụ kiện hoặc sản phẩm liên quan phù hợp và tương thích với sản phẩm tôi đang xem.
+Dựa vào các sản phẩm bán chạy mà bạn đã tìm ra hãy sắp xếp chúng từ bán chạy nhất đến không bán chạy nhất.
+Lưu ý: 
+KHÔNG đề xuất sản phẩm không liên quan hoặc phụ kiện của hãng đối thủ (ví dụ: không đề xuất sạc Samsung cho iPhone).
 Chỉ trả về 1 object JSON có định dạng:
 {
   "recommendedIds": ["id1", "id2"]

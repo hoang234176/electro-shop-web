@@ -105,7 +105,7 @@ export const registerReq = async ( {fullName, userName, password, email, phone, 
 
 export const logout = () => {
     localStorage.removeItem('token');
-    localStorage.removeItem('avatar');
+    localStorage.removeItem('avatar');  
 }
 
 export const forgotPasswordRequest = async (data: { username: string }) => {

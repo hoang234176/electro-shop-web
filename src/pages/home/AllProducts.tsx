@@ -6,7 +6,7 @@ import Loading from "../../component/ui/Loading";
 import "./Category.css"; // Tận dụng CSS của trang Category để dùng chung layout
 
 const categories = ["Điện thoại", "Laptop", "Tai nghe", "Đồng hồ", "Phụ kiện", "Màn hình"];
-const brands = ["Apple", "Samsung", "Sony", "Dell", "Anker", "LG", "Google"];
+const brands = ["Apple", "Samsung", "Sony", "Dell", "LG", "Google"];
 
 function AllProducts() {
     const navigate = useNavigate();
