@@ -71,7 +71,6 @@ function Home() {
 
     // Hàm render một lưới sản phẩm, có xử lý loading và error
     const renderProductGrid = (title: string, products: Product[]) => {
-        // if (isLoading) return <Loading fullScreen={false} text="Đang tải danh sách sản phẩm..." />;
         if (error) return <p>{error}</p>;
         if (products.length === 0) return <p>Chưa có sản phẩm nào trong mục này.</p>;
 

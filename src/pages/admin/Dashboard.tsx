@@ -107,15 +107,8 @@ function Dashboard() {
                     }
                 });
 
-                // Tính toán Tổng Vốn Nhập thực tế từ danh sách sản phẩm
-                products.forEach((product: any) => {
-                    const importPrice = Number(product.importPrice) || 0;
-                    let totalQty = 0;
-                    product.variants?.forEach((v: any) => {
-                        totalQty += (v.quantity || 0) + (v.sold || 0);
-                    });
-                    actualTotalImportCost += importPrice * totalQty;
-                });
+                // Gán Tổng Vốn Nhập bằng Giá vốn hàng bán (chỉ tính các sản phẩm đã bán trong đơn hàng thành công)
+                actualTotalImportCost = totalCOGS;
 
                 setStats({ totalRevenue: totalRev, totalSold: totalSoldItems, totalProfit: totalProf, totalCost: actualTotalImportCost });
                 setRevenueByMonth(monthData);
@@ -174,7 +167,7 @@ function Dashboard() {
 
                 <div className="kpi-card">
                     <div className="kpi-info">
-                        <span className="kpi-title">Tổng Vốn Nhập</span>
+                        <span className="kpi-title">Giá Vốn (Hàng đã bán)</span>
                         <h3 className="kpi-value">{isLoading ? "..." : formatCurrency(stats.totalCost)}</h3>
                         <span className="kpi-trend" style={{ color: '#6b7280' }}>Cập nhật tự động</span>
                     </div>
