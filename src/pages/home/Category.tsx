@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useLocation, Link, useNavigate } from "react-router-dom";
 import ProductCard from "../../component/ui/ProductCard";
-import { getAllProducts } from "../../services/productServices";
+import { getAllProducts } from "../../services/product.service";
 import Loading from "../../component/ui/Loading";
 import "./Category.css";
 

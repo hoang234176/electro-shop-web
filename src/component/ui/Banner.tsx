@@ -1,42 +1,62 @@
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Banner.css'; 
 
-interface BannerProps {
-    newProducts: any[];
+// Định nghĩa kiểu dữ liệu cho sản phẩm
+export interface Product {
+    _id: string;
+    name: string;
+    price: number;
+    variants?: { image?: string }[];
 }
+
+interface BannerProps {
+    newProducts: Product[];
+}
+
+// Định nghĩa kiểu dữ liệu cho một banner
+interface BannerItem {
+    id: string;
+    title: string;
+    price: number;
+    desc: string;
+    imageUrl: string;
+    bgColor: string;
+    slantColor: string;
+    textColor: string;
+    btnTextColor: string;
+}
+
+// Các bộ màu có sẵn để gán luân phiên cho sản phẩm - Đưa ra ngoài component để tránh re-render
+const colorThemes = [
+    { bgColor: "#FFD700", slantColor: "#00A3FF", textColor: "#111827", btnTextColor: "#00A3FF" },
+    { bgColor: "#1F2937", slantColor: "#10B981", textColor: "#FFFFFF", btnTextColor: "#10B981" },
+    { bgColor: "#4C1D95", slantColor: "#F97316", textColor: "#FFFFFF", btnTextColor: "#F97316" },
+    { bgColor: "#F3F4F6", slantColor: "#DC2626", textColor: "#111827", btnTextColor: "#DC2626" },
+    { bgColor: "#0284C7", slantColor: "#FBBF24", textColor: "#FFFFFF", btnTextColor: "#0284C7" }
+];
 
 function BannerList({ newProducts }: BannerProps) {
     // Sợi dây kết nối tới thẻ div cuộn
     const carouselRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
-    const [banners, setBanners] = useState<any[]>([]);
 
-    // Các bộ màu có sẵn để gán luân phiên cho sản phẩm
-    const colorThemes = [
-        { bgColor: "#FFD700", slantColor: "#00A3FF", textColor: "#111827", btnTextColor: "#00A3FF" },
-        { bgColor: "#1F2937", slantColor: "#10B981", textColor: "#FFFFFF", btnTextColor: "#10B981" },
-        { bgColor: "#4C1D95", slantColor: "#F97316", textColor: "#FFFFFF", btnTextColor: "#F97316" },
-        { bgColor: "#F3F4F6", slantColor: "#DC2626", textColor: "#111827", btnTextColor: "#DC2626" },
-        { bgColor: "#0284C7", slantColor: "#FBBF24", textColor: "#FFFFFF", btnTextColor: "#0284C7" }
-    ];
-
-    useEffect(() => {
-        // Khi component cha (Home) truyền dữ liệu newProducts xuống, cập nhật lại banner
+    const banners: BannerItem[] = useMemo(() => {
         if (newProducts && newProducts.length > 0) {
-            const formattedBanners = newProducts.slice(0, 5).map((product: any, index: number) => {
+            return newProducts.slice(0, 5).map((product: Product, index: number) => {
                 const theme = colorThemes[index % colorThemes.length];
                 return {
                     id: product._id,
                     title: product.name,
+                    price: product.price,
                     desc: `Sản phẩm mới ra mắt. Giá chỉ từ ${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.price)}`,
                     imageUrl: product.variants?.[0]?.image || '',
                     ...theme
                 };
             });
-            setBanners(formattedBanners);
         }
-    }, [newProducts]); // Hook sẽ chạy lại mỗi khi newProducts thay đổi
+        return [];
+    }, [newProducts]);
 
     // Hàm điều khiển cuộn (Dùng chung cho cả click chuột và auto-play)
     const scroll = (direction: 'left' | 'right') => {
@@ -62,6 +82,26 @@ function BannerList({ newProducts }: BannerProps) {
                 carouselRef.current.scrollBy({ left: -clientWidth, behavior: 'smooth' });
             }
         }
+    };
+
+    // Xử lý sự kiện bấm nút Mua ngay trên Banner
+    const handleBuyNow = (banner: BannerItem) => {
+        const isLoggedIn = !!localStorage.getItem("token");
+        if (!isLoggedIn) {
+            navigate("/login");
+            return;
+        }
+        
+        const buyNowItem = {
+            compositeId: `${banner.id}_Mặc định`,
+            productId: banner.id,
+            color: "Mặc định",
+            name: banner.title,
+            price: banner.price,
+            imageUrl: banner.imageUrl,
+            quantity: 1
+        };
+        navigate("/checkout", { state: { selectedItems: [buyNowItem] } });
     };
 
     // Auto-play: Cứ 5 giây (5000ms) sẽ tự động gọi hàm scroll sang phải 1 lần
@@ -94,7 +134,7 @@ function BannerList({ newProducts }: BannerProps) {
                                 <button 
                                     className="banner-btn" 
                                     style={{ color: banner.btnTextColor, cursor: 'pointer' }}
-                                    onClick={() => navigate(`/product/${banner.id}`)} /* <-- Sửa URL route tại đây để đồng bộ với Home.tsx */
+                                onClick={() => handleBuyNow(banner)}
                                 >
                                     Mua ngay
                                 </button>

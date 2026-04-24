@@ -3,8 +3,20 @@ import Banner from "../../component/ui/Banner";
 import ProductCard from "../../component/ui/ProductCard";
 import { Link, useNavigate } from "react-router-dom";
 import "./Home.css"; 
-import { getAllProducts, getNewProducts } from "../../services/productServices";
+import { getAllProducts, getNewProducts } from "../../services/product.service";
 import Loading from "../../component/ui/Loading";
+import { 
+    FiSmartphone, 
+    FiMonitor, 
+    FiHeadphones, 
+    FiWatch, 
+    FiTv,
+    FiFolder,
+    FiPackage
+} from 'react-icons/fi';
+import { TbPlug } from 'react-icons/tb';
+import { MdFiberNew } from 'react-icons/md' 
+
 
 // Định nghĩa cấu trúc dữ liệu Product để đảm bảo an toàn kiểu
 interface Product {
@@ -22,12 +34,12 @@ function Home() {
 
     // Dữ liệu cho danh mục vẫn có thể giữ lại vì nó tĩnh
     const categories = [
-        { id: 1, name: "Điện thoại", icon: "📱" },
-        { id: 2, name: "Laptop", icon: "💻" },
-        { id: 3, name: "Tai nghe", icon: "🎧" },
-        { id: 4, name: "Đồng hồ", icon: "⌚" },
-        { id: 5, name: "Phụ kiện", icon: "🔌" },
-        { id: 6, name: "Màn hình", icon: "🖥️" },
+        { id: 1, name: "Điện thoại", icon: <FiSmartphone/> },
+        { id: 2, name: "Laptop", icon:<FiMonitor/> },
+        { id: 3, name: "Tai nghe", icon: <FiHeadphones/> },
+        { id: 4, name: "Đồng hồ", icon: <FiWatch/> },
+        { id: 5, name: "Phụ kiện", icon: <TbPlug/> },
+        { id: 6, name: "Màn hình", icon: <FiTv/> },
     ];
 
     // State để lưu trữ dữ liệu sản phẩm từ backend
@@ -116,7 +128,10 @@ function Home() {
 
             {/* --- 2. DANH MỤC NỔI BẬT --- */}
             <section className="home-section">
-                <h2 className="section-title">📂 Khám Phá Danh Mục</h2>
+                <h2 className="section-title">
+                    <FiFolder className="folder-icon" color="#f59e0b" size={28} />
+                    <span>Khám Phá Danh Mục</span>
+                </h2>
                 <div className="category-list">
                     {categories.map((cat) => (
                         <Link
@@ -134,7 +149,10 @@ function Home() {
 
             {/* --- 3. SẢN PHẨM MỚI RA MẮT --- */}
             <section className="home-section">
-                <h2 className="section-title">🆕 Sản phẩm mới ra mắt</h2>
+                <h2 className="section-title">
+                    <MdFiberNew size={32} color="red" />
+                    <span>Sản phẩm mới ra mắt</span>
+                </h2>
                 {/* Hiển thị tối đa 8 sản phẩm (2 hàng x 4 sản phẩm) */}
                 {renderProductGrid("new", newProducts.slice(0, 8))}
             </section>
@@ -142,7 +160,10 @@ function Home() {
             {/* --- 4. TẤT CẢ SẢN PHẨM --- */}
             <section className="home-section">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                    <h2 className="section-title" style={{ marginBottom: 0 }}>📦 Tất cả sản phẩm</h2>
+                    <h2 className="section-title" style={{ marginBottom: 0 }}>
+                        <FiPackage className="package-icon" color="#3b82f6" size={28} />
+                        <span>Tất cả sản phẩm</span>
+                    </h2>
                     <Link to="/products" style={{ textDecoration: 'none', color: '#3b82f6', fontWeight: 600 }}>
                         Xem tất cả &raquo;
                     </Link>

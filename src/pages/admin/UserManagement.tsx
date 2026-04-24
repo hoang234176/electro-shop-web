@@ -3,8 +3,9 @@ import Button from "../../component/ui/Button";
 import Input from "../../component/ui/Input";
 import Alert from "../../component/ui/Alert";
 import "./UserManagement.css";
-import { DeleteUser } from "../../services/adminServices";
-import { GetAllUser } from "../../services/adminServices";
+import { DeleteUser } from "../../services/admin.service";
+import { GetAllUser } from "../../services/admin.service";
+import { FiTrash2 } from "react-icons/fi";
 
 interface User {
     _id: string;
@@ -197,9 +198,10 @@ function UserManagement() {
                                             <button 
                                                 className="btn-delete" 
                                                 title="Xóa tài khoản"
+                                                style={{ backgroundColor: '#ef4444', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '6px', borderRadius: '6px', border: 'none', cursor: 'pointer' }}
                                                 onClick={() => handleDeleteClick(user._id)}
                                             >
-                                                🗑️
+                                                <FiTrash2 size={16} />
                                             </button>
                                         )}
                                     </div>

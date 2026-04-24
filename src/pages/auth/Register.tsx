@@ -2,10 +2,10 @@ import { useState, useEffect } from "react";
 import Input from "../../component/ui/Input";
 import Button from "../../component/ui/Button";
 import { Link } from "react-router-dom";
-import logoGoogle from "../../assets/google-logo.png";
+// import logoGoogle from "../../assets/google-logo.png";
 import "./Auth.css";
 import { useNavigate } from "react-router-dom";
-import { registerReq, type RegisterError } from "../../services/authServices";
+import { registerReq, type RegisterError } from "../../services/auth.service";
 // import { useGoogleLogin } from "@react-oauth/google";
 import Loading from "../../component/ui/Loading";
 

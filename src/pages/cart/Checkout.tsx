@@ -3,8 +3,8 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import Button from "../../component/ui/Button";
 import Alert from "../../component/ui/Alert";
 import "./Checkout.css";
-import { getInfoProfile } from "../../services/userServices";
-import { createOrder } from "../../services/orderServices";
+import { getInfoProfile } from "../../services/user.service";
+import { createOrder } from "../../services/order.service";
 
 function Checkout() {
     const navigate = useNavigate();

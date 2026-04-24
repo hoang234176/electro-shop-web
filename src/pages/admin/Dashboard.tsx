@@ -4,9 +4,10 @@ import {
     PieChart, Pie, Cell, Legend
 } from 'recharts';
 import "./Dashboard.css";
-import { getAllOrdersAdmin } from "../../services/adminServices";
-import { getAllProducts } from "../../services/productServices";
+import { getAllOrdersAdmin } from "../../services/admin.service";
+import { getAllProducts } from "../../services/product.service";
 import Loading from "../../component/ui/Loading";
+import { FiDollarSign, FiPackage, FiTrendingUp, FiTag } from 'react-icons/fi'; 
 
 // Màu sắc cho biểu đồ tròn tương ứng với trạng thái đơn hàng
 const COLORS = ['#16a34a', '#2563eb', '#d97706', '#ef4444'];
@@ -162,7 +163,9 @@ function Dashboard() {
                         <h3 className="kpi-value">{isLoading ? "..." : formatCurrency(stats.totalRevenue)}</h3>
                         <span className="kpi-trend" style={{ color: '#6b7280' }}>Cập nhật tự động</span>
                     </div>
-                    <div className="kpi-icon" style={{ backgroundColor: '#ecfeff', color: '#3b82f6' }}>💰</div>
+                    <div className="kpi-icon" style={{ backgroundColor: '#ecfeff', color: '#3b82f6' }}>
+                        <FiDollarSign />
+                    </div>
                 </div>
 
                 <div className="kpi-card">
@@ -171,7 +174,9 @@ function Dashboard() {
                         <h3 className="kpi-value">{isLoading ? "..." : formatCurrency(stats.totalCost)}</h3>
                         <span className="kpi-trend" style={{ color: '#6b7280' }}>Cập nhật tự động</span>
                     </div>
-                    <div className="kpi-icon" style={{ backgroundColor: '#f3f4f6', color: '#6b7280' }}>📦</div>
+                    <div className="kpi-icon" style={{ backgroundColor: '#f3f4f6', color: '#6b7280' }}>
+                        <FiPackage />
+                    </div>
                 </div>
 
                 <div className="kpi-card">
@@ -180,7 +185,9 @@ function Dashboard() {
                         <h3 className="kpi-value">{isLoading ? "..." : formatCurrency(stats.totalProfit)}</h3>
                         <span className="kpi-trend" style={{ color: '#6b7280' }}>Cập nhật tự động</span>
                     </div>
-                    <div className="kpi-icon" style={{ backgroundColor: '#ecfdf5', color: '#10b981' }}>📈</div>
+                    <div className="kpi-icon" style={{ backgroundColor: '#ecfdf5', color: '#10b981' }}>
+                        <FiTrendingUp />
+                    </div>
                 </div>
 
                 <div className="kpi-card">
@@ -189,7 +196,9 @@ function Dashboard() {
                         <h3 className="kpi-value">{isLoading ? "..." : stats.totalSold}</h3>
                         <span className="kpi-trend" style={{ color: '#6b7280' }}>Cập nhật tự động</span>
                     </div>
-                    <div className="kpi-icon" style={{ backgroundColor: '#fef3c7', color: '#f59e0b' }}>🏷️</div>
+                    <div className="kpi-icon" style={{ backgroundColor: '#fef3c7', color: '#f59e0b' }}>
+                        <FiTag />
+                    </div>
                 </div>
             </div>
 

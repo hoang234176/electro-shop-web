@@ -1,4 +1,4 @@
-import { getRole } from '../utils/tokenUtils'
+import { getRole } from '../utils/token.util'
 import { Navigate } from 'react-router-dom';
 
 interface Props {

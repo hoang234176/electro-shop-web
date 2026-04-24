@@ -35,7 +35,7 @@
     padding: 12px 24px;
     color: #9ca3af;
     text-decoration: none;
-    font-size: 15px;
+    font-size: 16px;
     font-weight: 500;
     transition: all 0.2s;
     border-left: 4px solid transparent;
@@ -46,6 +46,23 @@
     background-color: #1f2937;
     border-left-color: #0284c7; /* Viền xanh bên trái khi active */
 }
+
+/* Điều chỉnh vị trí icon nhích xuống 2px */
+.admin-nav-icon {
+    position: relative;
+    top: 2px; 
+    stroke-width: 2.5px;
+    font-size: 16px;
+    margin-right: 12px;
+    transition: color 0.3s ease; /* Thêm hiệu ứng chuyển màu mượt mà */
+}
+
+/* Đổi màu riêng biệt cho từng icon khi hover (dựa theo thứ tự menu) */
+/* Chỉ tác động vào icon (.admin-nav-icon), phần chữ (text) vẫn giữ nguyên màu trắng mặc định */
+.admin-nav > .admin-nav-item:nth-child(1):hover .admin-nav-icon { color: #3b82f6; } /* Tổng quan - Xanh dương */
+.admin-nav > .admin-nav-item:nth-child(2):hover .admin-nav-icon { color: #10b981; } /* Sản phẩm - Xanh lá */
+.admin-nav > .admin-nav-item:nth-child(3):hover .admin-nav-icon { color: #f59e0b; } /* Đơn hàng - Cam */
+.admin-nav > .admin-nav-item:nth-child(4):hover .admin-nav-icon { color: #8b5cf6; } /* Người dùng - Tím */
 
 .admin-sidebar-footer {
     margin-top: auto; /* Đẩy khối này xuống sát đáy */

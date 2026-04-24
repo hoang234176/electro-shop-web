@@ -39,6 +39,14 @@
     cursor: pointer;
     transition: transform 0.2s ease;
     width: 100px;
+    color: #374151; /* Đặt màu chữ/icon mặc định để không bị xanh/tím theo link */
+    text-decoration: none;
+}
+
+/* Chặn màu tím mặc định khi đã click vào (visited/active) */
+.category-item:visited,
+.category-item:active {
+    color: #374151;
 }
 
 .category-item:hover {
@@ -66,6 +74,7 @@
 .category-item:hover .category-icon {
     border-color: #0284c7;
     box-shadow: 0 8px 15px rgba(2, 132, 199, 0.15);
+    color: #0284c7; /* Đổi màu icon sang xanh dương cùng với màu viền cho đồng bộ */
 }
 
 .category-name {

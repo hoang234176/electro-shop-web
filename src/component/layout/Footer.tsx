@@ -16,17 +16,17 @@ function Footer() {
                 </div>
                 <div className="footer-column">
                     <h3>Về chúng tôi</h3>
-                    <Link to="/about">Giới thiệu Electro Shop</Link>
-                    <Link to="/careers">Tuyển dụng</Link>
-                    <Link to="/contact">Liên hệ & Góp ý</Link>
-                    <Link to="/store-finder">Hệ thống cửa hàng</Link>
+                    <Link to="#">Giới thiệu Electro Shop</Link>
+                    <Link to="#">Tuyển dụng</Link>
+                    <Link to="#">Liên hệ & Góp ý</Link>
+                    <Link to="#">Hệ thống cửa hàng</Link>
                 </div>
                 <div className="footer-column">
                     <h3>Chính sách</h3>
-                    <Link to="/warranty">Chính sách bảo hành</Link>
-                    <Link to="/payment">Thanh toán</Link>
-                    <Link to="/delivery">Giao hàng</Link>
-                    <Link to="/privacy">Bảo mật thông tin</Link>
+                    <Link to="#">Chính sách bảo hành</Link>
+                    <Link to="#">Thanh toán</Link>
+                    <Link to="#">Giao hàng</Link>
+                    <Link to="#">Bảo mật thông tin</Link>
                 </div>
                 <div className="footer-column">
                     <h3>Tổng đài hỗ trợ</h3>

@@ -4,10 +4,10 @@ import Button from "../../component/ui/Button";
 import Input from "../../component/ui/Input";
 import "./Auth.css";
 import Loading from "../../component/ui/Loading";
-import logoGoogle from "../../assets/google-logo.png";
+// import logoGoogle from "../../assets/google-logo.png";
 // import axios from "axios";
 // import getRole from "../../utils/tokenUtils";
-import { loginReq, type LoginError } from "../../services/authServices";
+import { loginReq, type LoginError } from "../../services/auth.service";
 // import { useGoogleLogin } from "@react-oauth/google";
 // import { loginGoogleReq } from "../../services/authServices";
 

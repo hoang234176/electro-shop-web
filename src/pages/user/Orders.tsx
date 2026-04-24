@@ -5,7 +5,8 @@ import Button from "../../component/ui/Button";
 import Alert, { type AlertProps } from "../../component/ui/Alert";
 import Loading from "../../component/ui/Loading";
 import "./Orders.css";
-import { getUserOrders, cancelOrder } from "../../services/orderServices";
+import { getUserOrders, cancelOrder } from "../../services/order.service";
+import { FiClock, FiTruck, FiCheckCircle, FiXCircle } from "react-icons/fi";
 
 function Orders() {
     const location = useLocation();
@@ -113,15 +114,15 @@ function Orders() {
     const getStatusInfo = (status: string) => {
         switch(status) {
             case 'pending': 
-                return { label: '⏳ Chờ lấy hàng', color: '#d97706', bg: '#fef3c7' };
+                return { text: 'Chờ lấy hàng', icon: <FiClock size={16} />, color: '#d97706', bg: '#fef3c7' };
             case 'shipping': 
-                return { label: '🚚 Đang giao hàng', color: '#2563eb', bg: '#eff6ff' };
+                return { text: 'Đang giao hàng', icon: <FiTruck size={16} />, color: '#2563eb', bg: '#eff6ff' };
             case 'delivered': 
-                return { label: '✅ Đã giao thành công', color: '#16a34a', bg: '#dcfce3' };
+                return { text: 'Đã giao thành công', icon: <FiCheckCircle size={16} />, color: '#16a34a', bg: '#dcfce3' };
             case 'cancelled':
-                return { label: '❌ Đã hủy', color: '#dc2626', bg: '#fee2e2' };
+                return { text: 'Đã hủy', icon: <FiXCircle size={16} />, color: '#dc2626', bg: '#fee2e2' };
             default: 
-                return { label: 'Không xác định', color: '#4b5563', bg: '#f3f4f6' };
+                return { text: 'Không xác định', icon: null, color: '#4b5563', bg: '#f3f4f6' };
         }
     };
 
@@ -174,7 +175,7 @@ function Orders() {
 
     // Tiêu đề của trang dựa theo bộ lọc
     const pageTitle = statusFilter 
-        ? getStatusInfo(statusFilter).label.replace(/[^a-zA-ZÀ-ỹ\s]/g, '').trim() // Bỏ icon emoji ở title
+        ? getStatusInfo(statusFilter).text
         : "Tất cả đơn hàng";
 
     // Hiển thị giao diện yêu cầu đăng nhập nếu chưa có token
@@ -246,8 +247,8 @@ function Orders() {
                                         <span className="order-id">Mã ĐH: #{order.displayId || order.id}</span>
                                         <div className="order-header-right">
                                             <span className="order-date">Ngày đặt: {order.date}</span>
-                                            <span className="order-status" style={{ color: statusInfo.color, backgroundColor: statusInfo.bg }}>
-                                                {statusInfo.label}
+                                            <span className="order-status" style={{ display: 'flex', alignItems: 'center', gap: '6px', color: statusInfo.color, backgroundColor: statusInfo.bg }}>
+                                                {statusInfo.icon} {statusInfo.text}
                                             </span>
                                         </div>
                                     </div>

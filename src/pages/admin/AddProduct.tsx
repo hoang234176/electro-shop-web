@@ -3,9 +3,12 @@ import { useNavigate, useLocation } from "react-router-dom";
 import Button from "../../component/ui/Button";
 import Input from "../../component/ui/Input";
 import Alert from "../../component/ui/Alert";
+import "./AdminFormUI.css";
 import "./AddProduct.css";
-import { runGemini } from "../../services/aiServices";
-import { addProduct } from "../../services/adminServices";
+import { runGemini } from "../../services/ai.service";
+import { addProduct } from "../../services/admin.service";
+import { FiPlus, FiTrash2 } from "react-icons/fi";
+import { MdChat } from "react-icons/md"
 
 function AddProduct() {
     const navigate = useNavigate();
@@ -304,11 +307,15 @@ function AddProduct() {
                                             style={{ display: 'none' }}
                                             accept="image/*" />
                                     </div>
-                                    <button type="button" className="btn-remove-row" onClick={() => removeVariant(index)} title="Xóa phiên bản này">🗑️</button>
+                                    <button type="button" className="btn-remove-row" style={{ backgroundColor: '#ef4444', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '10px', borderRadius: '6px', border: 'none', cursor: 'pointer' }} onClick={() => removeVariant(index)} title="Xóa phiên bản này">
+                                        <FiTrash2 size={16} />
+                                    </button>
                                 </div>
                             ))}
                             <div style={{ marginTop: '8px' }}>
-                                <Button type="button" variant="secondary" width="160px" height="40px" onClick={addVariant}>+ Thêm phiên bản</Button>
+                                <Button type="button" variant="secondary" width="180px" height="40px" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }} onClick={addVariant}>
+                                    <FiPlus size={16} /> Thêm phiên bản
+                                </Button>
                             </div>
                         </div>
                         <div className="form-group-admin full-width">
@@ -322,11 +329,15 @@ function AddProduct() {
                                 <div key={index} className="spec-row">
                                     <div className="spec-input-wrapper"><Input label="" placeholder="Tên thông số (VD: Màn hình)" value={spec.label} onChange={(e) => handleSpecificationChange(index, 'label', e.target.value)} /></div>
                                     <div className="spec-input-wrapper"><Input label="" placeholder="Giá trị (VD: 6.7 inch, 120Hz)" value={spec.value} onChange={(e) => handleSpecificationChange(index, 'value', e.target.value)} /></div>
-                                    <button type="button" className="btn-remove-row" onClick={() => removeSpecification(index)} title="Xóa thông số">🗑️</button>
+                                    <button type="button" className="btn-remove-row" style={{ backgroundColor: '#ef4444', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '10px', borderRadius: '6px', border: 'none', cursor: 'pointer' }} onClick={() => removeSpecification(index)} title="Xóa thông số">
+                                        <FiTrash2 size={16} />
+                                    </button>
                                 </div>
                             ))}
                             <div style={{ marginTop: '8px' }}>
-                                <Button type="button" variant="secondary" width="160px" height="40px" onClick={addSpecification}>+ Thêm thông số</Button>
+                                <Button type="button" variant="secondary" width="180px" height="40px" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }} onClick={addSpecification}>
+                                    <FiPlus size={16} /> Thêm thông số
+                                </Button>
                             </div>
                         </div>
                     </div>
@@ -361,7 +372,7 @@ function AddProduct() {
                 }}
                 title="Mở Chatbot Gemini"
             >
-                🤖
+                <MdChat size={24} />
             </button>
 
             {/* Gemini Chatbot Window */}
@@ -396,7 +407,7 @@ function AddProduct() {
                             borderTopRightRadius: '8px'
                         }}
                     >
-                        <h3 style={{ margin: 0, fontSize: '16px' }}>Gemini Chatbot</h3>
+                        <h3 style={{ margin: 0, fontSize: '16px' }}>AI Hỗ trợ</h3>
                         <button
                             onClick={() => setShowGeminiChat(false)}
                             style={{

@@ -1,11 +1,11 @@
 import { GoogleGenAI } from "@google/genai";
 
-const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-if (!apiKey) {
+const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+if (!GEMINI_API_KEY) {
     throw new Error("VITE_GEMINI_API_KEY is not defined in .env file");
 }
 
-const ai = new GoogleGenAI({ apiKey: apiKey });
+const aiClient = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 
 export const runGemini = async (userInput: string): Promise<any> => {
     // Khuôn mẫu JSON được thiết kế riêng cho form React của bạn
@@ -35,10 +35,13 @@ Quy tắc bắt buộc:
 3. Nếu không có thông tin, hãy để chuỗi rỗng "" hoặc mảng rỗng [].
 4. Tuyệt đối không bọc kết quả trong markdown (\`\`\`json).
 5. Lựa chọn danh mục là category. Ví dụ: "điện thoại", "máy tính", ...
+6. importPrice, price tìm hiểu trên thị trường giá nhập sỉ và bán lẻ.
+7. Mô tả sản phẩm phải viết sao cho lôi cuốn người mua.
+8. Thống số kỹ thuật chi tiết càng tốt.
 `;
 
     try {
-        const response = await ai.models.generateContent({
+        const response = await aiClient.models.generateContent({
             model: 'gemini-3-flash-preview',
             contents: systemPrompt,
             config: {
@@ -87,7 +90,7 @@ Chỉ trả về 1 object JSON có định dạng:
 
     const fetchAI = async () => {
         try {
-            const response = await ai.models.generateContent({
+            const response = await aiClient.models.generateContent({
                 model: 'gemini-3-flash-preview',
                 contents: prompt,
                 config: {

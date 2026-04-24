@@ -2,14 +2,15 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import Button from "../../component/ui/Button";
 import Alert from "../../component/ui/Alert";
-import { getProductById, getAllProducts } from "../../services/productServices";
-import { getReviewsByProduct, createReview } from "../../services/reviewServices";
+import { getProductById, getAllProducts } from "../../services/product.service";
+import { getReviewsByProduct, createReview } from "../../services/review.service";
 import ReviewSummary from "../../component/ui/ReviewSummary";
-import { getUserId } from "../../utils/tokenUtils";
-import { addToCart } from "../../services/cartServices";
-import { getRelatedProductsFromAI } from "../../services/aiServices";
+import { getUserId } from "../../utils/token.util";
+import { addToCart } from "../../services/cart.service";
+import { getRelatedProductsFromAI } from "../../services/ai.service";
 import ProductCard from "../../component/ui/ProductCard";
 import "./ProductDetail.css";
+import { LuSparkles } from "react-icons/lu";
 
 function ProductDetail() {
     const { id } = useParams<{ id: string }>();
@@ -222,7 +223,7 @@ function ProductDetail() {
                 color: selectedColor,
                 quantity: quantity
             });
-            setAlertMessage({ text: `Đã thêm ${quantity} sản phẩm [${product.name}] bản màu ${selectedColor} vào giỏ hàng! 🛒`, type: 'success' });
+            setAlertMessage({ text: `Đã thêm ${quantity} sản phẩm [${product.name}] phiên bản ${selectedColor} vào giỏ hàng!`, type: 'success' });
 
             // Báo cho Header biết giỏ hàng vừa thay đổi để cập nhật lại số lượng
             window.dispatchEvent(new Event('cartUpdated'));
@@ -327,9 +328,9 @@ function ProductDetail() {
 
                     <p className="product-description">{product.description}</p>
 
-                    {/* --- VÙNG CHỌN MÀU SẮC PHIÊN BẢN --- */}
+                    {/* --- VÙNG CHỌN PHIÊN BẢN --- */}
                     <div className="product-variants">
-                        <label>Màu sắc:</label>
+                        <label>Phiên bản:</label>
                         <div className="variant-buttons">
                             {product.variants?.map((variant: any, index: number) => (
                                 <button
@@ -442,9 +443,11 @@ function ProductDetail() {
                 </div>
             </div>
 
-            {/* --- 4. SẢN PHẨM LIÊN QUAN (AI ĐỀ XUẤT) --- */}
+            {/* --- 4. SẢN PHẨM ĐỀ XUẤT ĐI KÈM --- */}
             <div className="related-products-section" style={{ marginTop: '40px' }}>
-                <h2 className="section-title">✨ Có thể bạn sẽ thích (AI Đề xuất)</h2>
+                <h2 className="section-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <LuSparkles style={{ color: '#3b82f6' }} /> AI ĐỀ XUẤT PHỤ KIỆN ĐI KÈM
+                </h2>
                 {isRelatedLoading ? (
                     <p style={{ textAlign: 'center', color: '#666', padding: '20px' }}>🤖 AI đang phân tích và tìm các phụ kiện phù hợp nhất cho bạn...</p>
                 ) : relatedProducts.length > 0 ? (

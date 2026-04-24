@@ -4,8 +4,9 @@ import Button from "../../component/ui/Button";
 import Input from "../../component/ui/Input";
 import Alert from "../../component/ui/Alert";
 import "./ProductManagement.css";
-import { getAllProducts } from "../../services/productServices";
-import { deleteProduct } from "../../services/adminServices";
+import { getAllProducts } from "../../services/product.service";
+import { deleteProduct } from "../../services/admin.service";
+import { FiPlus, FiEdit, FiTrash2 } from "react-icons/fi";
 
 // Định nghĩa cấu trúc dữ liệu sản phẩm để hiển thị
 interface DisplayProduct {
@@ -151,7 +152,9 @@ function ProductManagement() {
             {/* Header Trang */}
             <div className="admin-page-header">
                 <h1 className="admin-page-title">Quản lý Sản phẩm</h1>
-                <Button variant="primary" width="180px" height="40px" onClick={() => navigate("/admin/product/add")}>+ Thêm sản phẩm</Button>
+                <Button variant="primary" width="180px" height="40px" onClick={() => navigate("/admin/product/add")} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                    <FiPlus size={18} /> Thêm sản phẩm
+                </Button>
             </div>
 
             {/* Thanh công cụ: Tìm kiếm, Lọc */}
@@ -194,10 +197,16 @@ function ProductManagement() {
                                     <td className="product-price-col">{formatCurrency(product.price)}</td>
                                     <td>{product.stock}</td>
                                     <td>
-                                        <div className="admin-action-btns">
-                                            <button className="btn-edit" title="Nhập hàng" style={{ backgroundColor: '#10b981', color: 'white' }} onClick={() => navigate(`/admin/product/import/${product.id}`)}>➕</button>
-                                            <button className="btn-edit" title="Chỉnh sửa" onClick={() => navigate(`/admin/product/edit/${product.id}`)}>✏️</button>
-                                            <button className="btn-delete" title="Xóa" onClick={() => handleDeleteClick(product.id)}>🗑️</button>
+                                        <div className="admin-action-btns" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                            <button className="btn-edit" title="Nhập hàng" style={{ backgroundColor: '#10b981', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '6px', borderRadius: '6px', border: 'none', cursor: 'pointer' }} onClick={() => navigate(`/admin/product/import/${product.id}`)}>
+                                                <FiPlus size={16} />
+                                            </button>
+                                            <button className="btn-edit" title="Chỉnh sửa" style={{ backgroundColor: '#3b82f6', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '6px', borderRadius: '6px', border: 'none', cursor: 'pointer' }} onClick={() => navigate(`/admin/product/edit/${product.id}`)}>
+                                                <FiEdit size={16} />
+                                            </button>
+                                            <button className="btn-delete" title="Xóa" style={{ backgroundColor: '#ef4444', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '6px', borderRadius: '6px', border: 'none', cursor: 'pointer' }} onClick={() => handleDeleteClick(product.id)}>
+                                                <FiTrash2 size={16} />
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>

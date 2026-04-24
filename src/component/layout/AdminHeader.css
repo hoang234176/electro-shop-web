@@ -57,3 +57,10 @@
     background-color: #e0f2fe;
     color: #0369a1;
 }
+
+.admin-store-icon{
+    font-size: 20px;
+    position: relative;
+    top: 4px;
+    margin-right: 8px; 
+}

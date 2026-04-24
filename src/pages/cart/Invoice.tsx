@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Button from "../../component/ui/Button";
-import { getUserOrders, cancelOrder } from "../../services/orderServices";
+import { getUserOrders, cancelOrder } from "../../services/order.service";
 import Loading from "../../component/ui/Loading";
 import "./Invoice.css";
 

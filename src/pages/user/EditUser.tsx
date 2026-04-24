@@ -5,7 +5,7 @@ import Input from "../../component/ui/Input";
 import UserSidebar from "../../component/layout/UserSidebar";
 import Alert from "../../component/ui/Alert";
 import "./EditUser.css";
-import { updateInfoUser, type InfoErrorRes } from "../../services/userServices";
+import { updateInfoUser, type InfoErrorRes } from "../../services/user.service";
 import { updateUserCache } from "../../hooks/useUserData";
 
 function EditUser() {
@@ -20,7 +20,7 @@ function EditUser() {
     const [address, setAddress] = useState(userInfo.address || "");
 
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
-    const [previewUrl, setPreviewUrl] = useState<string>(userInfo.avatar || "");
+    const [previewUrl, setPreviewUrl] = useState(localStorage.getItem("avatar") || "");
 
     const [isShowAlert, setIsShowAlert] = useState(false);
 
@@ -45,8 +45,9 @@ function EditUser() {
 
     useEffect(() => {
         return () => {
-            if (previewUrl && previewUrl !== userInfo.avatar) {
+            if (previewUrl && previewUrl !== localStorage.getItem("avatar")) {
                 URL.revokeObjectURL(previewUrl);
+                
             }
         };
     }, [previewUrl, userInfo.avatar]);

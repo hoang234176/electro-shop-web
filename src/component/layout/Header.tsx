@@ -3,12 +3,14 @@ import { Link, useNavigate } from "react-router-dom";
 import Button from "../ui/Button";
 import Input from "../ui/Input";
 import "./Header.css";
-import logoShop from "../../assets/logo-shop.png";
+// import logoShop from "../../assets/logo-shop.png";
 import searchIcon from "../../assets/search-icon.png";
-import { logout } from "../../services/authServices";
-import { getCart } from "../../services/cartServices";
+import { logout } from "../../services/auth.service";
+import { getCart } from "../../services/cart.service";
 import Loading from "../ui/Loading";
 import { clearUserCache } from "../../hooks/useUserData";
+import { FiHome, FiGrid, FiTag, FiShoppingCart, FiUser, FiUserPlus, FiPackage, FiKey, FiLogOut } from "react-icons/fi";
+
 
 function Header() {
     const navigate = useNavigate();
@@ -42,6 +44,9 @@ function Header() {
     const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setSearchValue(event.target.value);
     }
+
+    // Mảng chứa các chữ cái, dùng khoảng trắng cho dấu cách
+    const text = ['E', 'L', 'E', 'C', 'T', 'R', 'O', '\u00A0', 'S', 'H', 'O', 'P'];
 
     // Lắng nghe sự kiện đăng nhập/đăng xuất để tự động cập nhật Header
     useEffect(() => {
@@ -140,21 +145,27 @@ function Header() {
                     <Link to="/register" onClick={(e) => handleNavigation(e, "/register")}>
                         <Button
                             width="100px"
-                            height="48px"
+                            height="54px"
                             variant="secondary"
                             className="btn-auth-register-header"
                         >
-                            Đăng ký
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                                <FiUserPlus size={18} />
+                                <span style={{ fontSize: '13px' }}>Đăng ký</span>
+                            </div>
                         </Button>
                     </Link>
                     <Link to='/login' onClick={(e) => handleNavigation(e, "/login")}>
                         <Button
                             width="100px"
-                            height="48px"
+                            height="54px"
                             variant="primary"
                             className="btn-auth-login-header"
                         >
-                            Đăng nhập
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                                <FiUser size={18} />
+                                <span style={{ fontSize: '13px' }}>Đăng nhập</span>
+                            </div>
                         </Button>
                     </Link>
                 </>
@@ -166,21 +177,27 @@ function Header() {
                         <img src={avatar || ""} alt="avatar" className="avatar-icon-header" />
                     </Link>
                     <div className="user-dropdown-menu">
-                        <Link to="/user/info" className="dropdown-item" onClick={(e) => handleNavigation(e, "/user/info")}>👤 Thông tin cá nhân</Link>
-                        <Link to="/user/orders" className="dropdown-item" onClick={(e) => handleNavigation(e, "/user/orders")}>📦 Quản lý đơn hàng</Link>
+                        <Link to="/user/info" className="dropdown-item" onClick={(e) => handleNavigation(e, "/user/info")}>
+                            <FiUser className="dropdown-icon" /> Thông tin cá nhân
+                        </Link>
+                        <Link to="/user/orders" className="dropdown-item" onClick={(e) => handleNavigation(e, "/user/orders")}>
+                            <FiPackage className="dropdown-icon" /> Quản lý đơn hàng
+                        </Link>
                         {/* <Link to="/user/notifications" className="dropdown-item">
                             🔔 Thông báo
                             {notificationCount > 0 && (
                                 <span className="dropdown-badge">{notificationCount}</span>
                             )}
                         </Link> */}
-                        <Link to="/user/change-password" className="dropdown-item" onClick={(e) => handleNavigation(e, "/user/change-password")}>🔑 Đổi mật khẩu</Link>
+                        <Link to="/user/change-password" className="dropdown-item" onClick={(e) => handleNavigation(e, "/user/change-password")}>
+                            <FiKey className="dropdown-icon" /> Đổi mật khẩu
+                        </Link>
                         <div className="dropdown-divider"></div>
                         <button
                             className="dropdown-item logout-btn"
                             onClick={handleLogout}
                         >
-                            🚪 Đăng xuất
+                            <FiLogOut className="dropdown-icon" /> Đăng xuất
                         </button>
                     </div>
                 </div>
@@ -192,13 +209,36 @@ function Header() {
         <header className="header-group">
             {isLoading && <Loading fullScreen={true} />}
             <div className="header-left">
-                <Link to='/'>
-                    <img src={logoShop} alt="Trang chủ" width={"76px"} />
+                <Link to='/' style={{ textDecoration: 'none' }}>
+                    <div className="electro-container">
+                        {/* <img src={logoShop} alt="Trang chủ" width={"76px"} /> */}
+                        {text.map((char, index) => (
+                            <h1 
+                                key={index} 
+                                className="electro-letter" 
+                                // Truyền index vào biến CSS cục bộ để làm độ trễ animation
+                                style={{ '--i': index } as React.CSSProperties} 
+                            >
+                                {char}
+                            </h1>
+                        ))}
+                    </div>
                 </Link>
                 <div className="nav-group-header">
-                    <Link to="/">Trang chủ</Link>
-                    <Link to="/category">Danh mục</Link>
-                    <Link to="/brand">Thương hiệu</Link>
+                    <Link to="/">
+                        <FiHome className="nav-icon" />
+                        <span>Trang chủ</span>
+                    </Link>
+
+                    <Link to="/category">
+                        <FiGrid className="nav-icon" />
+                        <span>Danh mục</span>
+                    </Link>
+
+                    <Link to="/brand">
+                        <FiTag className="nav-icon" />
+                        <span>Thương hiệu</span>
+                    </Link>
                 </div>
             </div>
             <div className="header-right">
@@ -216,21 +256,13 @@ function Header() {
                 </div>
 
                 <Link to="/cart" className="header-cart-link" title="Giỏ hàng" onClick={(e) => handleNavigation(e, "/cart")}>
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="28" height="28"
-                        viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" strokeWidth="2"
-                        strokeLinecap="round" strokeLinejoin="round"
-                    >
-                        <circle cx="9" cy="21" r="1"></circle>
-                        <circle cx="20" cy="21" r="1"></circle>
-                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-                    </svg>
-                    {/* Badge hiển thị số lượng giỏ hàng */}
-                    {cartCount > 0 && (
-                        <span className="cart-badge">{cartCount}</span>
-                    )}
+                    <div className="cart-icon-wrapper">
+                        <FiShoppingCart className="header-cart-icon"/>
+                        {/* Badge hiển thị số lượng giỏ hàng */}
+                        {cartCount > 0 && (
+                            <span className="cart-badge">{cartCount}</span>
+                        )}
+                    </div>
                 </Link>
 
                 <div className="btn-auth-header-group">

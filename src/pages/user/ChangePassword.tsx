@@ -4,7 +4,7 @@ import UserSidebar from "../../component/layout/UserSidebar";
 import Input from "../../component/ui/Input";
 import Button from "../../component/ui/Button";
 import Alert, { type AlertProps } from "../../component/ui/Alert";
-import { changePassword } from "../../services/userServices";
+import { changePassword } from "../../services/user.service";
 import "./ChangePassword.css"; 
 
 function ChangePassword() {

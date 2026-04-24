@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Button from "../../component/ui/Button";
 import Alert from "../../component/ui/Alert";
-import { getCart, updateCartQuantity, removeFromCart } from "../../services/cartServices";
+import { getCart, updateCartQuantity, removeFromCart } from "../../services/cart.service";
+import { FiTrash2 } from "react-icons/fi";
 import "./Cart.css";
 
 // Interface định dạng lại dữ liệu lấy từ backend để dễ render
@@ -192,10 +193,10 @@ function Cart() {
                     {selectedIds.length > 0 && cartItems.length > 0 && (
                         <button 
                             onClick={handleRemoveSelected}
-                            style={{ padding: '8px 16px', backgroundColor: '#ef4444', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 600 }}
+                            style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', backgroundColor: '#ef4444', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 600 }}
                             title="Xóa các sản phẩm đang được đánh dấu"
                         >
-                            🗑️ Xóa ({selectedIds.length}) mục đã chọn
+                            <FiTrash2 size={18} /> Xóa ({selectedIds.length}) mục đã chọn
                         </button>
                     )}
                 </div>
@@ -261,7 +262,9 @@ function Cart() {
                                     {formatCurrency(item.price * item.quantity)}
                                 </div>
                                 <div className="cart-col action-col">
-                                    <button className="btn-remove-item" onClick={() => removeItem(item.productId, item.color, item.compositeId)} title="Xóa sản phẩm">🗑️</button>
+                                    <button className="btn-remove-item" onClick={() => removeItem(item.productId, item.color, item.compositeId)} title="Xóa sản phẩm">
+                                        <FiTrash2 size={20} />
+                                    </button>
                                 </div>
                             </div>
                         ))}

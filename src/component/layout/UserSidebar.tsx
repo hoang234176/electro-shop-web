@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import "./UserSidebar.css";
-import { getUserOrders } from "../../services/orderServices";
+import { getUserOrders } from "../../services/order.service";
 import { useUserData } from "../../hooks/useUserData";
+import { FiUser, FiPackage, FiKey, FiEdit, FiClock, FiTruck, FiCheckCircle, FiXCircle } from "react-icons/fi";
 
 const UserSidebar = () => {
     const [avatar, setAvatar] = useState(
@@ -17,6 +18,9 @@ const UserSidebar = () => {
     // Lấy trạng thái bộ lọc (pending, shipping, delivered) từ URL
     const queryParams = new URLSearchParams(location.search);
     const currentStatus = queryParams.get("status");
+
+    // State quản lý hiệu ứng hover cho từng dòng menu con
+    const [hoveredStatus, setHoveredStatus] = useState<string | null>(null);
 
     // Giả lập số lượng thông báo (sau này có thể truyền từ Context/Redux xuống)
     // const [notificationCount] = useState(1);
@@ -72,12 +76,16 @@ const UserSidebar = () => {
                 <div className="profile-brief">
                     <h3 className="profile-name">{userInfo?.fullname}</h3>
                     <span className="profile-edit-link">
-                        <Link to="/user/edit" state={{userData: userInfo}}>✎ Sửa hồ sơ</Link>
+                        <Link to="/user/edit" state={{userData: userInfo}} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <FiEdit size={12} /> Sửa hồ sơ
+                        </Link>
                     </span>
                 </div>
             </div>
             <nav className="sidebar-nav">
-                <Link to="/user/info" state={{userData: userInfo}} className={`nav-item ${location.pathname === '/user/info' ? 'active' : ''}`}><span>👤 Thông tin tài khoản</span></Link>
+                <Link to="/user/info" state={{userData: userInfo}} className={`nav-item ${location.pathname === '/user/info' ? 'active' : ''}`}><span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <FiUser strokeWidth={3} fontSize={16} /> Thông tin tài khoản</span>
+                </Link>
 
                 <div className="nav-item-wrapper">
                     <Link
@@ -93,25 +101,53 @@ const UserSidebar = () => {
                             }
                         }}
                     >
-                        <span>📦 Quản lý đơn hàng</span>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><FiPackage strokeWidth={3} fontSize={16}  /> Quản lý đơn hàng</span>
                         <span className={`toggle-icon ${isOrderMenuOpen ? 'open' : ''}`}>▼</span>
                     </Link>
                     {isOrderMenuOpen && (
                         <div className="sidebar-submenu">
-                            <Link to="/user/orders?status=pending" state={{userData: userInfo}} className={`submenu-item ${currentStatus === 'pending' ? 'active' : ''}`} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <span>⏳ Chờ lấy hàng</span>
+                            <Link 
+                                to="/user/orders?status=pending" 
+                                state={{userData: userInfo}} 
+                                className={`submenu-item ${currentStatus === 'pending' ? 'active' : ''}`} 
+                                style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                                onMouseEnter={() => setHoveredStatus('pending')}
+                                onMouseLeave={() => setHoveredStatus(null)}
+                            >
+                                <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><FiClock strokeWidth={3} fontSize={16} color={(hoveredStatus === 'pending' || currentStatus === 'pending') ? '#f59e0b' : undefined} /> Chờ lấy hàng</span>
                                 {orderCounts.pending > 0 && <span style={{ backgroundColor: '#f59e0b', color: 'white', fontSize: '12px', fontWeight: 600, padding: '2px 8px', borderRadius: '12px' }}>{orderCounts.pending}</span>}
                             </Link>
-                            <Link to="/user/orders?status=shipping" state={{userData: userInfo}} className={`submenu-item ${currentStatus === 'shipping' ? 'active' : ''}`} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <span>🚚 Đang giao</span>
+                            <Link 
+                                to="/user/orders?status=shipping" 
+                                state={{userData: userInfo}} 
+                                className={`submenu-item ${currentStatus === 'shipping' ? 'active' : ''}`} 
+                                style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                                onMouseEnter={() => setHoveredStatus('shipping')}
+                                onMouseLeave={() => setHoveredStatus(null)}
+                            >
+                                <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><FiTruck strokeWidth={3} fontSize={16} color={(hoveredStatus === 'shipping' || currentStatus === 'shipping') ? '#3b82f6' : undefined} /> Đang giao</span>
                                 {orderCounts.shipping > 0 && <span style={{ backgroundColor: '#3b82f6', color: 'white', fontSize: '12px', fontWeight: 600, padding: '2px 8px', borderRadius: '12px' }}>{orderCounts.shipping}</span>}
                             </Link>
-                            <Link to="/user/orders?status=delivered" state={{userData: userInfo}} className={`submenu-item ${currentStatus === 'delivered' ? 'active' : ''}`} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <span>✅ Đã giao</span>
+                            <Link 
+                                to="/user/orders?status=delivered" 
+                                state={{userData: userInfo}} 
+                                className={`submenu-item ${currentStatus === 'delivered' ? 'active' : ''}`} 
+                                style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                                onMouseEnter={() => setHoveredStatus('delivered')}
+                                onMouseLeave={() => setHoveredStatus(null)}
+                            >
+                                <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><FiCheckCircle strokeWidth={3} fontSize={16} color={(hoveredStatus === 'delivered' || currentStatus === 'delivered') ? '#10b981' : undefined} /> Đã giao</span>
                                 {orderCounts.delivered > 0 && <span style={{ backgroundColor: '#10b981', color: 'white', fontSize: '12px', fontWeight: 600, padding: '2px 8px', borderRadius: '12px' }}>{orderCounts.delivered}</span>}
                             </Link>
-                            <Link to="/user/orders?status=cancelled" state={{userData: userInfo}} className={`submenu-item ${currentStatus === 'cancelled' ? 'active' : ''}`} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <span>❌ Đã hủy</span>
+                            <Link 
+                                to="/user/orders?status=cancelled" 
+                                state={{userData: userInfo}} 
+                                className={`submenu-item ${currentStatus === 'cancelled' ? 'active' : ''}`} 
+                                style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                                onMouseEnter={() => setHoveredStatus('cancelled')}
+                                onMouseLeave={() => setHoveredStatus(null)}
+                            >
+                                <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><FiXCircle strokeWidth={3} fontSize={16} color={(hoveredStatus === 'cancelled' || currentStatus === 'cancelled') ? '#ef4444' : undefined} /> Đã hủy</span>
                                 {orderCounts.cancelled > 0 && <span style={{ backgroundColor: '#ef4444', color: 'white', fontSize: '12px', fontWeight: 600, padding: '2px 8px', borderRadius: '12px' }}>{orderCounts.cancelled}</span>}
                             </Link>
                         </div>
@@ -120,7 +156,7 @@ const UserSidebar = () => {
 
                 {/* Đổi mật khẩu */}
                 <Link to="/user/change-password" state={{userData: userInfo}} className={`nav-item ${location.pathname === '/user/change-password' ? 'active' : ''}`}>
-                    <span>🔑 Đổi mật khẩu</span>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><FiKey strokeWidth={3} fontSize={16}  /> Đổi mật khẩu</span>
                 </Link>
                 
 

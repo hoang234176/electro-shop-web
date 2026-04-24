@@ -3,9 +3,11 @@ import { useNavigate, useParams } from "react-router-dom";
 import Button from "../../component/ui/Button";
 import Input from "../../component/ui/Input";
 import Alert from "../../component/ui/Alert";
-import "./AddProduct.css";
-import { getProductById } from "../../services/productServices";
-import { importProductAdmin } from "../../services/adminServices";
+import "./AdminFormUI.css";
+import "./ImportProduct.css";
+import { getProductById } from "../../services/product.service";
+import { importProductAdmin } from "../../services/admin.service";
+import { FiPlus, FiTrash2 } from "react-icons/fi";
 
 interface ExistingVariant {
     color: string;
@@ -167,18 +169,18 @@ function ImportProduct() {
                 <Button variant="secondary" width="120px" height="40px" onClick={() => navigate("/admin/product")}>Quay lại</Button>
             </div>
             <div className="admin-form-container">
-                <div style={{ marginBottom: '24px', paddingBottom: '16px', borderBottom: '1px solid #e5e7eb' }}>
-                    <h3 style={{ fontSize: '18px', color: '#111827', marginBottom: '8px' }}>Sản phẩm: {baseInfo?.name}</h3>
-                    <p style={{ color: '#6b7280', fontSize: '14px' }}>Nhập thêm số lượng cho các phiên bản màu hiện tại hoặc thêm màu mới.</p>
+                <div className="import-header-section">
+                    <h3 className="import-product-name">Sản phẩm: {baseInfo?.name}</h3>
+                    <p className="import-product-desc">Nhập thêm số lượng cho các phiên bản màu hiện tại hoặc thêm màu mới.</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="add-product-form">
                     <div className="form-group-admin full-width">
-                        <label className="admin-label" style={{ fontSize: '16px', color: '#0284c7' }}>1. Nhập thêm cho các phiên bản cũ</label>
+                        <label className="admin-label import-section-title">1. Nhập thêm cho các phiên bản cũ</label>
                         {existingVariants.map((variant, index) => (
-                            <div key={index} className="variant-row" style={{ backgroundColor: '#f9fafb', padding: '12px', borderRadius: '8px', border: '1px solid #f3f4f6' }}>
-                                <div className="variant-input-wrapper" style={{ width: '60px', flex: 'none', display: 'flex', alignItems: 'flex-end' }}>
-                                    <img src={typeof variant.image === 'string' && variant.image ? variant.image : 'https://via.placeholder.com/60?text=No+Image'} alt={variant.color} style={{ width: '100%', height: '40px', objectFit: 'contain', border: '1px solid #d1d5db', borderRadius: '4px', backgroundColor: '#fff' }} />
+                            <div key={index} className="variant-row import-variant-row-old">
+                                <div className="variant-input-wrapper import-image-wrapper">
+                                    <img src={typeof variant.image === 'string' && variant.image ? variant.image : 'https://via.placeholder.com/60?text=No+Image'} alt={variant.color} className="import-image-preview" />
                                 </div>
                                 <div className="variant-input-wrapper"><Input label="Màu sắc" value={variant.color} onChange={() => {}} disabled /></div>
                                 <div className="variant-input-wrapper"><Input label="Tồn kho hiện tại" value={variant.currentQuantity.toString()} onChange={() => {}} disabled /></div>
@@ -187,24 +189,34 @@ function ImportProduct() {
                         ))}
                     </div>
 
-                    <div className="form-group-admin full-width" style={{ marginTop: '24px' }}>
-                        <label className="admin-label" style={{ fontSize: '16px', color: '#0284c7' }}>2. Thêm phiên bản màu mới</label>
+                    <div className="form-group-admin full-width import-section-new">
+                        <label className="admin-label import-section-title">2. Thêm phiên bản màu mới</label>
                         {newVariants.map((variant, index) => (
-                            <div key={index} className="variant-row" style={{ backgroundColor: '#fff', padding: '12px', borderRadius: '8px', border: '1px solid #d1d5db' }}>
+                            <div key={index} className="variant-row import-variant-row-new">
                                 <div className="variant-input-wrapper"><Input label="Tên màu mới" placeholder="VD: Đỏ Ruby" value={variant.color} onChange={(e) => handleNewVariantTextChange(index, 'color', e.target.value)} required /></div>
-                                <div className="variant-input-wrapper"><Input label="Số lượng" type="number" placeholder="Số lượng" value={variant.quantity} onChange={(e) => handleNewVariantTextChange(index, 'quantity', e.target.value)} required min="1" /></div>
-                                <div className="variant-input-wrapper" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                    <label htmlFor={`new-image-${index}`} className="admin-label-file-upload" style={{ marginTop: 'auto', border: '1px dashed #ef4444' }}>
+                                <div className="variant-input-wrapper"><Input label="Số lượng" type="number" placeholder="VD: 10" value={variant.quantity} onChange={(e) => handleNewVariantTextChange(index, 'quantity', e.target.value)} required min="1" /></div>
+                                <div className="variant-input-wrapper import-new-image-wrapper">
+                                    <label htmlFor={`new-image-${index}`} className="admin-label-file-upload import-label-file-upload">
                                         {variant.image instanceof File ? variant.image.name : 'Chọn ảnh (Bắt buộc) *'}
                                     </label>
                                     <input id={`new-image-${index}`} type="file" onChange={(e) => handleNewVariantImageChange(index, e)} style={{ display: 'none' }} accept="image/*" />
                                 </div>
-                                <button type="button" className="btn-remove-row" style={{ marginTop: 'auto' }} onClick={() => removeNewVariantRow(index)}>🗑️</button>
+                                <button type="button" className="btn-remove-row btn-remove-new-variant" onClick={() => removeNewVariantRow(index)} title="Xóa màu này">
+                                    <FiTrash2 size={16} />
+                                </button>
                             </div>
                         ))}
-                        <div style={{ marginTop: '8px' }}><Button type="button" variant="secondary" width="180px" height="40px" onClick={addNewVariantRow}>+ Thêm màu mới</Button></div>
+                        <div className="import-add-btn-wrapper">
+                            <Button type="button" variant="secondary" width="180px" height="40px" className="btn-add-new-variant" onClick={addNewVariantRow}>
+                                <FiPlus size={16} /> Thêm màu mới
+                            </Button>
+                        </div>
                     </div>
-                    <div className="form-actions-admin" style={{ marginTop: '32px', borderTop: '1px solid #e5e7eb', paddingTop: '24px' }}><Button type="submit" variant="primary" width="200px" height="48px" disabled={isSubmitting}>{isSubmitting ? "Đang xử lý..." : "Lưu Nhập Hàng"}</Button></div>
+                    <div className="form-actions-admin import-form-actions">
+                        <Button type="submit" variant="primary" width="200px" height="48px" disabled={isSubmitting}>
+                            {isSubmitting ? "Đang xử lý..." : "Lưu Nhập Hàng"}
+                        </Button>
+                    </div>
                 </form>
             </div>
         </div>

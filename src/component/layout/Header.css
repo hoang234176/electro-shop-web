@@ -12,6 +12,8 @@
 }
 
 .header-left{
+    flex: 0 0 60%;
+
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -20,6 +22,8 @@
 }
 
 .header-right{
+    flex: 0 0 40%;
+
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -31,18 +35,52 @@
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 24px;
+    gap: 0px; /* Thêm lại khoảng cách nhỏ để các hiệu ứng nền không bị dính vào nhau */
 }
 
 .nav-group-header a {
-    font-size: 16px;
+    position: relative;
+    display: flex; /* Sử dụng flexbox để căn giữa */
+    flex-direction: column; /* Xếp icon ở trên, chữ ở dưới */
+    align-items: center; /* Căn giữa nội dung theo chiều ngang */
+    justify-content: center; /* Căn giữa toàn bộ cụm theo chiều dọc của header */
+    gap: 4px; /* Khoảng cách giữa icon và chữ */
+    height: 80px; /* Đặt chiều cao bằng với header */
+    padding: 0 20px;
+    font-size: 16px; /* Giảm cỡ chữ xuống một chút để cân đối với giao diện xếp dọc */
     font-weight: 600;
-    color: #5b5c5f;
+    color: #4b5563; /* Đổi sang màu xám thanh lịch hơn */
     text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+/* Thanh line chạy ở dưới cùng của thẻ a */
+.nav-group-header a::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 3px;
+    background-color: #1a73e8;
+    border-radius: 3px 3px 0 0;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* Hiệu ứng gia tốc mượt mà */
 }
 
 .nav-group-header a:hover{
     color: #1a73e8;
+    background-color: rgba(26, 115, 232, 0.05); /* Thêm nền xanh mờ rất nhẹ khi trỏ chuột */
+}
+
+/* Mở rộng thanh line khi hover */
+.nav-group-header a:hover::after {
+    width: 100%; /* Chạy full chiều ngang của thẻ */
+}
+
+/* Thêm class để điều chỉnh kích thước của icon cho nổi bật hơn */
+.nav-icon {
+    font-size: 22px; 
 }
 
 .btn-auth-header-group{
@@ -84,10 +122,50 @@
     position: relative;
     margin-left: 0px;
     margin-right: 0px;
-    color: #374151;
+    color: #4b5563; /* Đổi về màu xám giống menu điều hướng */
     display: flex;
     align-items: center;
+    justify-content: center;
+    height: 80px; /* Bằng chiều cao header */
+    padding: 0 20px;
     text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+/* Chặn màu tím mặc định khi click */
+.header-cart-link:visited,
+.header-cart-link:active {
+    color: #4b5563;
+}
+
+/* Thanh line chạy ở dưới cùng của giỏ hàng */
+.header-cart-link::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 3px;
+    background-color: #1a73e8;
+    border-radius: 3px 3px 0 0;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.header-cart-link:hover {
+    color: #1a73e8;
+    background-color: rgba(26, 115, 232, 0.05); /* Nền xanh mờ nhẹ */
+}
+
+.header-cart-link:hover::after {
+    width: 100%; /* Mở rộng thanh gạch dưới */
+}
+
+/* Giữ cho badge không bị lệch khi thẻ cha thay đổi chiều cao */
+.cart-icon-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
 }
 
 .cart-badge {
@@ -192,6 +270,16 @@
     color: #1a73e8;
 }
 
+.dropdown-icon {
+    font-size: 16px;
+    color: #6b7280;
+    transition: color 0.2s;
+}
+
+.dropdown-item:hover .dropdown-icon {
+    color: #1a73e8; /* Đổi màu xanh cho icon khi hover */
+}
+
 .dropdown-badge {
     background-color: #ef4444;
     color: white;
@@ -213,6 +301,66 @@
 }
 
 .logout-btn:hover {
-    background-color: #fef2f2;
-    color: #dc2626;
+    background-color: transparent;
+    color: #ef4444; /* Giữ nguyên màu chữ đỏ */
+}
+
+.logout-btn .dropdown-icon {
+    color: #ef4444;
+}
+
+.logout-btn:hover .dropdown-icon {
+    color: #dc2626; /* Icon đổi màu đỏ đậm hơn khi hover */
+}
+
+/* TEXT LOGO */
+.electro-container {
+  display: flex;
+  align-items: center;
+  /* Khoảng cách giữa các chữ cái, bạn có thể chỉnh lại cho vừa mắt */
+  gap: 1px; 
+}
+
+.electro-letter {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0;
+  
+  /* TRẠNG THÁI TĨNH (Bo mạch khi chưa có điện chạy qua) */
+  color: transparent; 
+  -webkit-text-stroke: 1px rgba(0, 255, 255, 1); /* Viền nhạt, mờ */
+  
+  /* THÊM ANIMATION */
+  /* Thời gian 1 chu kỳ là 3 giây, chạy liên tục không ngừng */
+  animation: electric-pulse 2s linear infinite;
+  
+  /* CỐT LÕI: Độ trễ dựa trên biến --i từ React truyền xuống */
+  /* Chữ thứ 0 trễ 0s, chữ thứ 1 trễ 0.15s, chữ thứ 2 trễ 0.3s... tạo thành làn sóng */
+  animation-delay: calc(var(--i) * 0.05s);
+}
+
+/* Xung điện quét qua */
+@keyframes electric-pulse {
+  0%, 25%, 100% {
+    /* Trạng thái tắt */
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(0, 255, 255, 0.2);
+    text-shadow: none;
+  }
+  10% {
+    /* TRẠNG THÁI LÓE SÁNG (Xung điện chạy tới) */
+    color: #ffffff; /* Lõi sáng trắng bốc lên */
+    -webkit-text-stroke: 1px #00ffff; /* Viền sáng rõ */
+    text-shadow: 
+      0 0 5px #1a73e8,
+      0 0 10px #1a73e8,
+      0 0 20px #1a73e8,    /* Vùng sáng xanh dương chớp nhoáng */
+      0 0 30px #6600cc;    /* Hào quang tím sâu ở viền ngoài */
+  }
+}
+
+.header-cart-icon{
+    font-size: 32px;
+    stroke-width: 2px;
 }

@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import "./AdminHeader.css";
+import { MdWeb } from "react-icons/md";
 
 function AdminHeader() {
     const avatar = localStorage.getItem("avatar") || "";
@@ -13,7 +14,10 @@ function AdminHeader() {
                 <div className="admin-profile">
                     <img src={avatar} alt="Admin Avatar" className="admin-avatar" />
                     <span className="admin-name">Quản trị viên</span>
-                    <Link to="/" className="admin-store-link" title="Xem cửa hàng khách">🌐 Cửa hàng</Link>
+                    <Link to="/" className="admin-store-link" title="Xem cửa hàng khách">
+                        <MdWeb className="admin-store-icon" />
+                        <span>Electro Shop</span>
+                    </Link>
                 </div>
             </div>
         </header>

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { getToken } from "../utils/tokenUtils";
+import { getToken } from "../utils/token.util";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
@@ -122,8 +122,25 @@ export const getAllOrdersAdmin = async () => {
             }
         });
         return response.data;
-    } catch (error: any) {
-        throw new Error(error.response?.data?.message || 'Lỗi kết nối đến server. Không thể lấy danh sách đơn hàng.');
+    } catch (error) {
+        if (axios.isAxiosError(error)) {
+            if (!error.response) {
+                throw {
+                    status: 500,
+                    message: "Lỗi kết nối máy chủ"
+                }
+            } else {
+                throw {
+                    status: error.response?.status,
+                    message: error.response?.data.message
+                }
+            }
+        } else {
+            throw {
+                status: 500,
+                message: "Lỗi hệ thống không xác định"
+            }
+        }
     }
 };
 
@@ -136,8 +153,25 @@ export const updateOrderStatusAdmin = async (orderId: string, status: string, re
             }
         });
         return response.data;
-    } catch (error: any) {
-        throw new Error(error.response?.data?.message || 'Lỗi kết nối đến server. Không thể cập nhật trạng thái.');
+    } catch (error) {
+        if (axios.isAxiosError(error)) {
+            if (!error.response) {
+                throw {
+                    status: 500,
+                    message: "Lỗi kết nối máy chủ"
+                }
+            } else {
+                throw {
+                    status: error.response?.status,
+                    message: error.response?.data.message
+                }
+            }
+        } else {
+            throw {
+                status: 500,
+                message: "Lỗi hệ thống không xác định"
+            }
+        }
     }
 };
 

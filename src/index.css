@@ -1,5 +1,7 @@
 /* 1. Nhúng font chữ từ Google Fonts (Ví dụ: font Inter đang rất phổ biến) */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+/* Phông chữ Orbitron đậm chất công nghệ */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap');
 
 /* 2. Khai báo biến cục bộ trong :root */
 :root {

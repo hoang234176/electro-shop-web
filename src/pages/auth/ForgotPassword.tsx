@@ -6,7 +6,7 @@ import Alert  from "../../component/ui/Alert";
 import { type AlertProps } from "../../component/ui/Alert";
 import "./Auth.css";
 // Giả định các service này sẽ được tạo trong `authServices.ts`
-import { forgotPasswordRequest, verifyResetCode, verifyAndResetPassword } from "../../services/authServices";
+import { forgotPasswordRequest, verifyResetCode, verifyAndResetPassword } from "../../services/auth.service";
 import Loading from "../../component/ui/Loading";
 
 function ForgotPassword() {

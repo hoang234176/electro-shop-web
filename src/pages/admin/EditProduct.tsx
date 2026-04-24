@@ -3,9 +3,11 @@ import { useNavigate, useParams } from "react-router-dom";
 import Button from "../../component/ui/Button";
 import Input from "../../component/ui/Input";
 import Alert from "../../component/ui/Alert";
-import "./AddProduct.css"; // Tái sử dụng CSS của AddProduct
-import { getProductById } from "../../services/productServices";
-import { updateProductAdmin } from "../../services/adminServices"; 
+import "./AdminFormUI.css";
+import "./EditProduct.css"; 
+import { getProductById } from "../../services/product.service";
+import { updateProductAdmin } from "../../services/admin.service"; 
+import { FiPlus, FiTrash2 } from "react-icons/fi";
 
 function EditProduct() {
     const { id } = useParams<{ id: string }>();
@@ -190,7 +192,9 @@ function EditProduct() {
                                             </label>
                                             <input id={`variant-image-${index}`} type="file" onChange={(e) => handleVariantImageChange(index, e)} style={{ display: 'none' }} accept="image/*" />
                                         </div>
-                                        <button type="button" className="btn-remove-row" onClick={() => removeVariant(index)} title="Xóa phiên bản này" style={{ fontSize: '14px', padding: '12px' }}>🗑️ Xóa màu</button>
+                                        <button type="button" className="btn-remove-row" onClick={() => removeVariant(index)} title="Xóa phiên bản này" style={{ backgroundColor: '#ef4444', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '8px 12px', borderRadius: '6px', border: 'none', cursor: 'pointer', gap: '8px', fontSize: '14px' }}>
+                                            <FiTrash2 size={16} /> Xóa màu
+                                        </button>
                                     </div>
                                 </div>
                             ))}
@@ -207,11 +211,15 @@ function EditProduct() {
                                 <div key={index} className="spec-row">
                                     <div className="spec-input-wrapper"><Input label="" placeholder="Tên thông số (VD: Màn hình)" value={spec.label} onChange={(e) => handleSpecificationChange(index, 'label', e.target.value)} /></div>
                                     <div className="spec-input-wrapper"><Input label="" placeholder="Giá trị (VD: 6.7 inch, 120Hz)" value={spec.value} onChange={(e) => handleSpecificationChange(index, 'value', e.target.value)} /></div>
-                                    <button type="button" className="btn-remove-row" onClick={() => removeSpecification(index)} title="Xóa thông số">🗑️</button>
+                                    <button type="button" className="btn-remove-row" style={{ backgroundColor: '#ef4444', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '10px', borderRadius: '6px', border: 'none', cursor: 'pointer' }} onClick={() => removeSpecification(index)} title="Xóa thông số">
+                                        <FiTrash2 size={16} />
+                                    </button>
                                 </div>
                             ))}
                             <div style={{ marginTop: '8px' }}>
-                                <Button type="button" variant="secondary" width="160px" height="40px" onClick={addSpecification}>+ Thêm thông số</Button>
+                                <Button type="button" variant="secondary" width="180px" height="40px" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }} onClick={addSpecification}>
+                                    <FiPlus size={16} /> Thêm thông số
+                                </Button>
                             </div>
                         </div>
 

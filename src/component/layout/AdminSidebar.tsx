@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import "./AdminSidebar.css";
-import { getAllOrdersAdmin } from "../../services/adminServices";
+import { getAllOrdersAdmin } from "../../services/admin.service";
 import Loading from "../ui/Loading";
+import { LuLayoutDashboard, LuUsers, LuLogOut} from "react-icons/lu";
+import { FiPackage, FiShoppingCart } from "react-icons/fi"
 
 function AdminSidebar() {
     const location = useLocation();
@@ -58,14 +60,17 @@ function AdminSidebar() {
             </div>
             <nav className="admin-nav">
                 <Link to="/admin/dashboard" className={`admin-nav-item ${location.pathname === '/admin/dashboard' ? 'active' : ''}`} onClick={(e) => handleNavigation(e, "/admin/dashboard")}>
-                    📊 Bảng điều khiển
+                    <LuLayoutDashboard className="admin-nav-icon" />
+                    <span>Bảng điều khiển</span>
                 </Link>
                 <Link to="/admin/product" className={`admin-nav-item ${location.pathname.includes('/admin/product') ? 'active' : ''}`} onClick={(e) => handleNavigation(e, "/admin/product")}>
-                    📦 Quản lý Sản phẩm
+                    <FiPackage className="admin-nav-icon" />
+                    <span> Quản lý Sản phẩm</span>
                 </Link>
                 {/* Chừa sẵn các route sẽ phát triển trong tương lai */}
                 <Link to="/admin/orders" className={`admin-nav-item ${location.pathname.includes('/admin/orders') ? 'active' : ''}`} onClick={(e) => handleNavigation(e, "/admin/orders")}>
-                    🛒 Quản lý Đơn hàng
+                    <FiShoppingCart className="admin-nav-icon" />
+                    <span>Quản lý Đơn hàng</span>
                     {cancelRequestCount > 0 && (
                         <span className="badge-notification" style={{
                             backgroundColor: '#ef4444', color: 'white', padding: '2px 8px', 
@@ -77,12 +82,14 @@ function AdminSidebar() {
                     )}
                 </Link>
                 <Link to="/admin/users" className={`admin-nav-item ${location.pathname.includes('/admin/users') ? 'active' : ''}`} onClick={(e) => handleNavigation(e, "/admin/users")}>
-                    👥 Quản lý Người dùng
+                    <LuUsers className="admin-nav-icon" />
+                    <span>Quản lý Tài khoản</span>
                 </Link>
             </nav>
             <div className="admin-sidebar-footer">
                 <button className="admin-nav-item sidebar-logout-btn" onClick={handleLogout}>
-                    🚪 Đăng xuất
+                    <LuLogOut className="admin-nav-icon" />
+                    <span>Đăng xuất</span>  
                 </button>
             </div>
         </aside>

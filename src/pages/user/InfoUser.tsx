@@ -4,9 +4,9 @@ import Button from "../../component/ui/Button";
 import UserSidebar from "../../component/layout/UserSidebar";
 import Alert from "../../component/ui/Alert";
 import "./InfoUser.css";
-import { type InfoErrorRes } from "../../services/userServices";
+import { type InfoErrorRes } from "../../services/user.service";
 import { useUserData } from "../../hooks/useUserData";
-import { formatDate } from "../../utils/formatDate";
+import { formatDate } from "../../utils/formatDate.util";
 
 function InfoUser() {
     const navigate = useNavigate();

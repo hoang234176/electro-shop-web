@@ -1,19 +1,27 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { getInfoProfile } from '../services/userServices';
+import { getInfoProfile } from '../services/user.service';
 
-let cachedUserData: any = null;
-let fetchPromise: Promise<any> | null = null;
+// TODO: Bổ sung các thuộc tính chính xác của user (id, name, email...) cho khớp với API trả về
+export interface UserProfile {
+    id?: string | number;
+    name?: string;
+    email?: string;
+    [key: string]: unknown;
+}
+
+let cachedUserData: UserProfile | null = null;
+let fetchPromise: Promise<UserProfile> | null = null;
 
 export const clearUserCache = () => {
     cachedUserData = null;
 };
 
-export const updateUserCache = (newData: any) => {
+export const updateUserCache = (newData: Partial<UserProfile>) => {
     if (cachedUserData) {
         cachedUserData = { ...cachedUserData, ...newData };
     } else {
-        cachedUserData = newData;
+        cachedUserData = newData as UserProfile;
     }
 };
 
@@ -23,9 +31,9 @@ export const updateUserCache = (newData: any) => {
  */
 export function useUserData() {
     const location = useLocation();
-    const [fetchedUser, setFetchedUser] = useState<any>(cachedUserData);
+    const [fetchedUser, setFetchedUser] = useState<UserProfile | null>(cachedUserData);
     const [isLoading, setIsLoading] = useState(!location.state?.userData && !cachedUserData);
-    const [error, setError] = useState<any>(null);
+    const [error, setError] = useState<unknown>(null);
 
     useEffect(() => {
         let isMounted = true;

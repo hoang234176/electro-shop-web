@@ -3,9 +3,10 @@ import Button from "../../component/ui/Button";
 import Input from "../../component/ui/Input";
 import Alert from "../../component/ui/Alert";
 import "./OrderManagement.css";
-import { getAllOrdersAdmin, updateOrderStatusAdmin } from "../../services/adminServices";
+import { getAllOrdersAdmin, updateOrderStatusAdmin } from "../../services/admin.service";
 import OrderDetailModal from "../../component/ui/OrderDetailModal";
 import Loading from "../../component/ui/Loading";
+import { LuNewspaper } from "react-icons/lu"
 
 interface DisplayOrder {
     id: string;
@@ -309,7 +310,9 @@ function OrderManagement() {
                                     </td>
                                     <td>
                                         <div className="admin-action-btns">
-                                            <button className="btn-edit" title="Xem chi tiết" onClick={() => handleViewDetails(order.id)}>📃</button>
+                                            <button className="btn-edit" title="Xem chi tiết" onClick={() => handleViewDetails(order.id)}>
+                                                <LuNewspaper className="show-info-order" />
+                                            </button>
                                         {order.cancelRequest && (
                                             <>
                                                 <button className="btn-edit" style={{ backgroundColor: '#ef4444', color: 'white', padding: '4px 8px', borderRadius: '4px', fontSize: '12px' }} title="Duyệt hủy" onClick={() => setOrderToCancel(order.id)}>Duyệt</button>

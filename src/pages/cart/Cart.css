@@ -254,3 +254,7 @@
     opacity: 0.5;
     cursor: not-allowed;
 }
+
+.btn-remove-item:hover {
+    color: red;
+}
