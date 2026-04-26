@@ -1,85 +1,14 @@
-import { useState, useEffect } from "react";
 import Banner from "../../component/ui/Banner";
 import ProductCard from "../../component/ui/ProductCard";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import "./Home.css"; 
-import { getAllProducts, getNewProducts } from "../../services/product.service";
 import Loading from "../../component/ui/Loading";
-import { 
-    FiSmartphone, 
-    FiMonitor, 
-    FiHeadphones, 
-    FiWatch, 
-    FiTv,
-    FiFolder,
-    FiPackage
-} from 'react-icons/fi';
-import { TbPlug } from 'react-icons/tb';
+import { FiFolder, FiPackage } from 'react-icons/fi';
 import { MdFiberNew } from 'react-icons/md' 
-
-
-// Định nghĩa cấu trúc dữ liệu Product để đảm bảo an toàn kiểu
-interface Product {
-    _id: string;
-    name: string;
-    price: number;
-    variants: { image?: string; quantity?: number }[];
-    rating?: number;
-    reviewCount?: number;
-}
+import { useHome, type Product } from "../../hooks/features/home/useHome";
 
 function Home() {
-    const navigate = useNavigate();
-    const [isNavigating, setIsNavigating] = useState(false);
-
-    // Dữ liệu cho danh mục vẫn có thể giữ lại vì nó tĩnh
-    const categories = [
-        { id: 1, name: "Điện thoại", icon: <FiSmartphone/> },
-        { id: 2, name: "Laptop", icon:<FiMonitor/> },
-        { id: 3, name: "Tai nghe", icon: <FiHeadphones/> },
-        { id: 4, name: "Đồng hồ", icon: <FiWatch/> },
-        { id: 5, name: "Phụ kiện", icon: <TbPlug/> },
-        { id: 6, name: "Màn hình", icon: <FiTv/> },
-    ];
-
-    // State để lưu trữ dữ liệu sản phẩm từ backend
-    const [newProducts, setNewProducts] = useState<Product[]>([]);
-    const [allProducts, setAllProducts] = useState<Product[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-
-    useEffect(() => {
-        const fetchHomeData = async () => {
-            setIsLoading(true);
-            setError(null);
-            try {
-                // Lấy dữ liệu sản phẩm mới và tất cả sản phẩm song song để tối ưu
-                const [newProductsData, allProductsData] = await Promise.all([
-                    getNewProducts(),
-                    getAllProducts(),
-                ]);
-
-                setNewProducts(newProductsData);
-                setAllProducts(allProductsData);
-            } catch (err: any) {
-                console.error("Lỗi khi tải dữ liệu trang chủ:", err);
-                setError("Không thể tải dữ liệu sản phẩm. Vui lòng thử lại sau.");
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchHomeData();
-    }, []);
-
-    const handleProductClick = (e: React.MouseEvent, productId: string) => {
-        e.preventDefault();
-        setIsNavigating(true);
-        setTimeout(() => {
-            setIsNavigating(false);
-            navigate(`/product/${productId}`);
-        }, 800);
-    };
+    const { isNavigating, newProducts, allProducts, isLoading, error, categories, handleProductClick } = useHome();
 
     // Hàm render một lưới sản phẩm, có xử lý loading và error
     const renderProductGrid = (title: string, products: Product[]) => {
@@ -133,17 +62,20 @@ function Home() {
                     <span>Khám Phá Danh Mục</span>
                 </h2>
                 <div className="category-list">
-                    {categories.map((cat) => (
-                        <Link
-                            to={`/category?name=${encodeURIComponent(cat.name)}`}
-                            key={cat.id}
-                            className="category-item"
-                            style={{ textDecoration: 'none' }}
-                        >
-                            <div className="category-icon">{cat.icon}</div>
-                            <span className="category-name">{cat.name}</span>
-                        </Link>
-                    ))}
+                    {categories.map((cat) => {
+                        const Icon = cat.Icon;
+                        return (
+                            <Link
+                                to={`/category?name=${encodeURIComponent(cat.name)}`}
+                                key={cat.id}
+                                className="category-item"
+                                style={{ textDecoration: 'none' }}
+                            >
+                                <div className="category-icon"><Icon /></div>
+                                <span className="category-name">{cat.name}</span>
+                            </Link>
+                        );
+                    })}
                 </div>
             </section>
 
@@ -153,8 +85,8 @@ function Home() {
                     <MdFiberNew size={32} color="red" />
                     <span>Sản phẩm mới ra mắt</span>
                 </h2>
-                {/* Hiển thị tối đa 8 sản phẩm (2 hàng x 4 sản phẩm) */}
-                {renderProductGrid("new", newProducts.slice(0, 8))}
+                {/* Hiển thị tối đa 4 sản phẩm */}
+                {renderProductGrid("new", newProducts.slice(0, 4))}
             </section>
 
             {/* --- 4. TẤT CẢ SẢN PHẨM --- */}

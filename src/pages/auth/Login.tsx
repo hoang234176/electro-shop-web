@@ -1,165 +1,18 @@
-import { useEffect, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Button from "../../component/ui/Button";
 import Input from "../../component/ui/Input";
 import "./Auth.css";
 import Loading from "../../component/ui/Loading";
-// import logoGoogle from "../../assets/google-logo.png";
-// import axios from "axios";
-// import getRole from "../../utils/tokenUtils";
-import { loginReq, type LoginError } from "../../services/auth.service";
-// import { useGoogleLogin } from "@react-oauth/google";
-// import { loginGoogleReq } from "../../services/authServices";
-
-
+import { useLogin } from "../../hooks/features/auth/useLogin";
 
 function Login() {
-    const navigate = useNavigate();
-
-    const [searchParams] = useSearchParams();
-
-    const [isShowPassword, setIsShowPassword] = useState(false);
-    const [stateTypePassword, setTypePassword] = useState("password");
-    const [btnTextPassword, setBtnTextPassword] = useState("Hiện");
-
-    const [userName, setUserName] = useState("");
-    const [password, setPassword] = useState("");
-
-    const [isErrorUserName, setIsErrorUserName] = useState(false);
-    const [isErrorPassword, setIsErrorPassword] = useState(false);
-
-    const [validationError, setValidationError] = useState(false);
-    const [authError, setAuthError] = useState(false);
-    const [loginSuccess, setLoginSuccess] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
-
-    // Cuộn lên đầu trang khi vào trang
-    useEffect(() => {
-        window.scrollTo(0, 0);
-    }, []);
-
-    useEffect(() => {
-        const userNameRegister = searchParams.get("userName");
-        if (userNameRegister) {
-            setUserName(userNameRegister);
-        }
-    }, [searchParams])
-
-    /*
-    const loginWithGoogle = useGoogleLogin({
-        onSuccess: async (tokenResponse) => {
-            try {
-                // Gửi access_token lấy được từ Google xuống Backend
-                const roleLogin = await loginGoogleReq(tokenResponse.access_token);
-                
-                setLoginSuccess(true);
-                setAuthError(false);
-                setValidationError(false);
-
-                if (roleLogin === "ADMIN") {
-                    setTimeout(() => {
-                        navigate("/admin/dashboard");
-                        window.location.reload();
-                    }, 2000);
-                } else {
-                    setTimeout(() => {
-                        navigate("/");
-                        window.location.reload();
-                    }, 2000);
-                }
-            } catch (error) {
-                setAuthError(true);
-            }
-        },
-        onError: error => console.error("Google Login Failed:", error)
-    });
-    */
-
-    const handClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        event.preventDefault();
-        if (!isShowPassword) {
-            setIsShowPassword(true);
-            setTypePassword("text");
-            setBtnTextPassword("Ẩn");
-        } else {
-            setIsShowPassword(false);
-            setTypePassword("password");
-            setBtnTextPassword("Hiện");
-        }
-    }
-
-    const handSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-
-        const trimmedUserName = userName.trim();
-
-        const isUserEmpty = trimmedUserName === "";
-        const isPassEmpty = password.trim() === "";
-
-        if (isUserEmpty || isPassEmpty) {
-            if (isUserEmpty) {
-                setIsErrorUserName(true);
-                setValidationError(true);
-                setAuthError(false);
-            }
-            if (isPassEmpty) {
-                setIsErrorPassword(true);
-                setValidationError(true);
-                setAuthError(false);
-            }
-
-            setTimeout(() => {
-                setIsErrorUserName(false);
-                setIsErrorPassword(false);
-            }, 200);
-        } else {
-            try {
-                setIsLoading(true);
-                const roleLogin = await loginReq({ userName: trimmedUserName, password });
-                
-                setLoginSuccess(true);
-                setAuthError(false);
-                setValidationError(false);
-
-                if (roleLogin === "ADMIN") {
-                    setTimeout(() => {
-                        navigate("/admin/dashboard");
-                        window.dispatchEvent(new Event("authChanged")); // Phát sự kiện để Header tự cập nhật
-                    }, 2000);
-                } else {
-                    setTimeout(() => {
-                        navigate("/");
-                        window.dispatchEvent(new Event("authChanged")); // Phát sự kiện để Header tự cập nhật
-                    }, 2000);
-                }
-            } catch (error) {
-                setIsLoading(false);
-                const errorInfo = error as LoginError;
-                if (errorInfo.status === 500){
-                    navigate("/error500");
-                }
-                setAuthError(true);
-                setValidationError(false);
-                setIsErrorUserName(true);
-                setIsErrorPassword(true);
-
-                setPassword("");
-                setTimeout(() => {
-                    setIsErrorUserName(false);
-                    setIsErrorPassword(false);
-                }, 200);
-            }
-        }
-
-    }
-
-    const handleForgotPassword = (e: React.MouseEvent) => {
-        e.preventDefault();
-        setIsLoading(true);
-        setTimeout(() => {
-            navigate("/forgot-password", { state: { username: userName } });
-        }, 800); // Hiển thị UI loading 800ms trước khi chuyển trang
-    };
+    const {
+        userName, setUserName, password, setPassword,
+        stateTypePassword, btnTextPassword,
+        isErrorUserName, isErrorPassword,
+        validationError, authError, loginSuccess, isLoading,
+        handClick, handSubmit, handleForgotPassword
+    } = useLogin();
 
     return (
         <div className="auth-container">

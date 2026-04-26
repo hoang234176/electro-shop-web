@@ -1,93 +1,13 @@
-import { useState, useEffect } from "react";
-import { useNavigate, useLocation, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Button from "../../component/ui/Button";
 import Input from "../../component/ui/Input";
 import UserSidebar from "../../component/layout/UserSidebar";
 import Alert from "../../component/ui/Alert";
 import "./EditUser.css";
-import { updateInfoUser, type InfoErrorRes } from "../../services/user.service";
-import { updateUserCache } from "../../hooks/useUserData";
+import { useEditUser } from "../../hooks/features/user/useEditUser";
 
 function EditUser() {
-    const navigate = useNavigate();
-    const location = useLocation();
-
-    const userInfo = location.state?.userData || {};
-
-    const [fullname, setfullname] = useState(userInfo.fullname || "");
-    const [email, setEmail] = useState(userInfo.email || "");
-    const [phone, setPhone] = useState(userInfo.phone || "");
-    const [address, setAddress] = useState(userInfo.address || "");
-
-    const [selectedFile, setSelectedFile] = useState<File | null>(null);
-    const [previewUrl, setPreviewUrl] = useState(localStorage.getItem("avatar") || "");
-
-    const [isShowAlert, setIsShowAlert] = useState(false);
-
-    const isLoggedIn = !!localStorage.getItem("token");
-
-    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            // Kiểm tra định dạng tệp tải lên
-            const validImageTypes = ['image/jpeg', 'image/png', 'image/jpg'];
-            if (!validImageTypes.includes(file.type)) {
-                alert("Định dạng tệp không hợp lệ! Vui lòng chỉ chọn ảnh có định dạng .JPEG hoặc .PNG.");
-                e.target.value = ''; // Xóa tệp không hợp lệ khỏi input
-                return;
-            }
-
-            setSelectedFile(file);
-            const objectUrl = URL.createObjectURL(file);
-            setPreviewUrl(objectUrl);
-        }
-    };
-
-    useEffect(() => {
-        return () => {
-            if (previewUrl && previewUrl !== localStorage.getItem("avatar")) {
-                URL.revokeObjectURL(previewUrl);
-                
-            }
-        };
-    }, [previewUrl, userInfo.avatar]);
-
-    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        try {
-            const res = await updateInfoUser({
-                fullName: fullname,
-                email,
-                phone,
-                address,
-                fileAvatar: selectedFile
-            } );
-            
-            // lưu ảnh mới vào bộ nhớ
-            if (res.avatarURL) {
-                localStorage.setItem("avatar", res.avatarURL);
-                window.dispatchEvent(new Event("avatarChanged"));
-            }
-            
-            // Cập nhật lại cache để Sidebar và InfoUser có dữ liệu mới ngay lập tức
-            updateUserCache({ fullname, email, phone, address, avatar: res.avatarURL || userInfo.avatar });
-            
-            setIsShowAlert(true);
-        } catch (error) {
-            const errorInfo = error as InfoErrorRes;
-            console.log(errorInfo);
-            if (errorInfo.status === 500) {
-                navigate("/error500");
-            } else {
-                alert(errorInfo.message);
-            }
-        }
-    }
-
-    const closeAlertAndNavigate = () => {
-        setIsShowAlert(false);
-        navigate("/user/info");
-    }
+    const { navigate, fullname, setfullname, email, setEmail, phone, setPhone, address, setAddress, selectedFile, previewUrl, isShowAlert, isLoggedIn, handleImageChange, handleSubmit, closeAlertAndNavigate } = useEditUser();
 
     if (!isLoggedIn) {
         return (

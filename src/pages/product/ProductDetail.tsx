@@ -1,129 +1,17 @@
-import { useState, useEffect } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Button from "../../component/ui/Button";
 import Alert from "../../component/ui/Alert";
-import { getProductById, getAllProducts } from "../../services/product.service";
-import { getReviewsByProduct, createReview } from "../../services/review.service";
 import ReviewSummary from "../../component/ui/ReviewSummary";
-import { getUserId } from "../../utils/token.util";
-import { addToCart } from "../../services/cart.service";
-import { getRelatedProductsFromAI } from "../../services/ai.service";
 import ProductCard from "../../component/ui/ProductCard";
 import "./ProductDetail.css";
 import { LuSparkles } from "react-icons/lu";
+import { useProductDetail, type ApiProductVariant } from "../../hooks/features/product/useProductDetail";
 
 function ProductDetail() {
-    const { id } = useParams<{ id: string }>();
-    const navigate = useNavigate();
-    const [quantity, setQuantity] = useState(1);
-
-    // State cho dữ liệu sản phẩm từ API
-    const [product, setProduct] = useState<any>(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const [images, setImages] = useState<string[]>([]);
-    const [activeImage, setActiveImage] = useState("");
-    const [selectedColor, setSelectedColor] = useState("");
-
-    // State cho phần nhận xét
-    const [reviews, setReviews] = useState<any[]>([]);
-    const [reviewText, setReviewText] = useState("");
-    const [reviewRating, setReviewRating] = useState(5);
-    const [hoverRating, setHoverRating] = useState(0); // State mới xử lý hiệu ứng di chuột (hover)
-    const [isSubmittingReview, setIsSubmittingReview] = useState(false);
-
-    const [alertMessage, setAlertMessage] = useState<{ text: string, type: 'success' | 'error' | 'warning' | 'info' } | null>(null);
-
-    const [relatedProducts, setRelatedProducts] = useState<any[]>([]);
-    const [isRelatedLoading, setIsRelatedLoading] = useState(false);
-
-    // Lấy dữ liệu sản phẩm từ API và cuộn trang
-    useEffect(() => {
-        const fetchProductDetail = async () => {
-            if (!id) return;
-            setIsLoading(true);
-            setReviews([]); // Reset reviews khi đổi sản phẩm
-            try {
-                // Lấy thông tin sản phẩm và review song song
-                const [productData, reviewsData] = await Promise.all([
-                    getProductById(id),
-                    getReviewsByProduct(id)
-                ]);
-
-                setProduct(productData);
-                setReviews(reviewsData);
-
-                // Lấy tất cả ảnh từ các phiên bản (variants) và loại bỏ trùng lặp
-                const uniqueVariantImages = Array.from(new Set(productData.variants?.map((v: any) => v.image).filter(Boolean))) as string[];
-                const productImages = uniqueVariantImages.length > 0 ? uniqueVariantImages : ["https://via.placeholder.com/500?text=No+Image"];
-
-                setImages(productImages);
-                setActiveImage(productImages[0]);
-
-                // Mặc định chọn màu đầu tiên
-                if (productData.variants && productData.variants.length > 0) {
-                    setSelectedColor(productData.variants[0].color);
-                }
-
-                // Gọi AI để lấy sản phẩm liên quan
-                fetchRelatedProducts(productData);
-            } catch (error) {
-                console.error("Lỗi khi tải chi tiết sản phẩm:", error);
-                setAlertMessage({ text: "Không thể tải thông tin sản phẩm. Vui lòng thử lại sau.", type: 'error' });
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        fetchProductDetail();
-        window.scrollTo(0, 0);
-    }, [id]);
-
-    const fetchRelatedProducts = async (currentProduct: any) => {
-        setIsRelatedLoading(true);
-        try {
-            const allProducts = await getAllProducts();
-            const availableProducts = allProducts.filter((p: any) => p._id !== currentProduct._id);
-
-            if (availableProducts.length === 0) return;
-
-            const recommendedIds = await getRelatedProductsFromAI(currentProduct, availableProducts);
-
-            const related = availableProducts
-                .filter((p: any) => recommendedIds.includes(p._id))
-                .map((p: any) => ({
-                    id: p._id,
-                    name: p.name,
-                    price: p.price,
-                    imageUrl: p.variants?.[0]?.image || 'https://via.placeholder.com/300?text=No+Image',
-                    rating: p.rating || 0,
-                    reviewCount: p.reviewCount || 0,
-                    isOutOfStock: (p.variants?.reduce((sum: number, v: any) => sum + (v.quantity || 0), 0) || 0) <= 0
-                }));
-
-            setRelatedProducts(related);
-        } catch (error) {
-            console.error("Lỗi khi lấy sản phẩm liên quan từ AI:", error);
-        } finally {
-            setIsRelatedLoading(false);
-        }
-    };
-
-    // Tự động chuyển đổi hình ảnh sau mỗi 4 giây (Slide show)
-    useEffect(() => {
-        if (images.length <= 1) return;
-        const intervalId = setInterval(() => {
-            setActiveImage(prev => {
-                const currentIndex = images.indexOf(prev);
-                const nextIndex = (currentIndex + 1) % images.length;
-                return images[nextIndex];
-            });
-        }, 4000);
-        return () => clearInterval(intervalId);
-    }, [activeImage, images]); // Khởi động lại đếm giờ nếu người dùng tự tay click chọn ảnh
-
-    // Hàm format tiền Việt Nam
-    const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
-    };
+    const {
+        navigate, product, isLoading, images, activeImage, setActiveImage, selectedColor, setSelectedColor, quantity, setQuantity,
+        reviews, reviewText, setReviewText, reviewRating, setReviewRating, hoverRating, setHoverRating, isSubmittingReview, alertMessage, setAlertMessage, relatedProducts, isRelatedLoading, isLoggedIn, formatCurrency, hasRated, handleReviewSubmit, totalReviews, ratingBreakdown, availableStock, specsArray, handleAddToCart, handleBuyNow, getAlertTitle
+    } = useProductDetail();
 
     // Hàm render số sao đánh giá
     const renderStars = (rating: number) => {
@@ -134,12 +22,6 @@ function ProductDetail() {
         return stars;
     };
 
-    // --- LOGIC PHẦN REVIEW ---
-    const isLoggedIn = !!localStorage.getItem("token");
-    const userId = getUserId(); // Sử dụng hàm getUserId để lấy ID người dùng từ token
-
-    // Kiểm tra xem người dùng hiện tại đã từng đánh giá CÓ SAO cho sản phẩm này chưa
-    const hasRated = reviews.some(review => review.user && String(review.user._id) === String(userId) && review.rating > 0);
     // Hàm render selector chọn số sao khi đánh giá
     const renderRatingSelect = () => {
         return (
@@ -163,103 +45,6 @@ function ProductDetail() {
         );
     };
 
-    // Hàm xử lý gửi nhận xét mới
-    const handleReviewSubmit = async () => {
-        if (!id || !reviewText.trim() || isSubmittingReview) return;
-
-        setIsSubmittingReview(true);
-        try {
-            const payload = {
-                productId: id,
-                comment: reviewText,
-                // Nếu đã từng đánh giá sao rồi, các lần bình luận sau không gửi rating nữa
-                rating: hasRated ? null : reviewRating,
-            };
-            const response = await createReview(payload);
-
-            // Cập nhật UI ngay lập tức với review mới
-            setReviews([response.review, ...reviews]);
-
-            // Cập nhật lại state của sản phẩm với rating mới nếu có
-            if (payload.rating) {
-                const updatedProduct = await getProductById(id);
-                setProduct(updatedProduct);
-            }
-
-            setReviewText("");
-            setReviewRating(5);
-            setAlertMessage({ text: response.message, type: 'success' });
-
-        } catch (error: any) {
-            console.error("Lỗi khi gửi nhận xét:", error);
-            setAlertMessage({ text: error.message || "Gửi nhận xét thất bại.", type: 'error' });
-        } finally {
-            setIsSubmittingReview(false);
-        }
-    };
-
-    const totalReviews = Number(product?.reviewCount) || 0;
-    const ratingBreakdown = product?.ratingBreakdown || { star1: 0, star2: 0, star3: 0, star4: 0, star5: 0 };
-    // --- KẾT THÚC LOGIC PHẦN REVIEW ---
-
-    // Xác định phiên bản đang chọn và số lượng tồn kho tương ứng
-    const selectedVariant = product?.variants?.find((v: any) => v.color === selectedColor);
-    const availableStock = selectedVariant ? selectedVariant.quantity : 0;
-
-    const handleAddToCart = async () => {
-        if (!isLoggedIn) {
-            setAlertMessage({ text: "Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng!", type: 'warning' });
-            return;
-        }
-
-        if (quantity > availableStock) {
-            setAlertMessage({ text: `Số lượng chọn vượt quá số lượng tồn kho hiện tại (${availableStock} sản phẩm).`, type: 'error' });
-            return;
-        }
-
-        try {
-            await addToCart({
-                productId: product._id,
-                color: selectedColor,
-                quantity: quantity
-            });
-            setAlertMessage({ text: `Đã thêm ${quantity} sản phẩm [${product.name}] phiên bản ${selectedColor} vào giỏ hàng!`, type: 'success' });
-
-            // Báo cho Header biết giỏ hàng vừa thay đổi để cập nhật lại số lượng
-            window.dispatchEvent(new Event('cartUpdated'));
-        } catch (error: any) {
-            setAlertMessage({ text: error.message || "Lỗi khi thêm vào giỏ hàng", type: 'error' });
-        }
-    };
-
-    const handleBuyNow = () => {
-        if (!isLoggedIn) {
-            setAlertMessage({ text: "Vui lòng đăng nhập để tiến hành thanh toán!", type: 'warning' });
-            return;
-        }
-        if (quantity > availableStock) {
-            setAlertMessage({ text: `Số lượng chọn vượt quá số lượng tồn kho hiện tại (${availableStock} sản phẩm).`, type: 'error' });
-            return;
-        }
-
-        const buyNowItem = {
-            compositeId: `${product._id}_${selectedColor}`,
-            productId: product._id,
-            color: selectedColor,
-            name: `${product.name} - ${selectedColor}`,
-            price: product.price,
-            imageUrl: activeImage,
-            quantity: quantity
-        };
-        navigate("/checkout", { state: { selectedItems: [buyNowItem] } });
-    };
-
-    const getAlertTitle = (): "THÔNG BÁO" | "CẢNH BÁO" | "LỖI" => {
-        if (alertMessage?.type === 'warning') return "CẢNH BÁO";
-        if (alertMessage?.type === 'error') return "LỖI";
-        return "THÔNG BÁO";
-    };
-
     if (isLoading) {
         return <div className="product-detail-container" style={{ textAlign: 'center', padding: '50px' }}><h3>Đang tải thông tin sản phẩm...</h3></div>;
     }
@@ -267,9 +52,6 @@ function ProductDetail() {
     if (!product) {
         return <div className="product-detail-container" style={{ textAlign: 'center', padding: '50px' }}><h3>Không tìm thấy sản phẩm.</h3><Button variant="primary" width="150px" height="40px" onClick={() => navigate('/')}>Về trang chủ</Button></div>;
     }
-
-    // Chuyển đổi specifications object thành mảng để hiển thị
-    const specsArray = product.specifications ? Object.entries(product.specifications).map(([label, value]) => ({ label, value: String(value) })) : [];
 
     return (
         <div className="product-detail-container">
@@ -332,7 +114,7 @@ function ProductDetail() {
                     <div className="product-variants">
                         <label>Phiên bản:</label>
                         <div className="variant-buttons">
-                            {product.variants?.map((variant: any, index: number) => (
+                            {product.variants?.map((variant: ApiProductVariant, index: number) => (
                                 <button
                                     key={index}
                                     className={`variant-btn ${selectedColor === variant.color ? 'active' : ''}`}

@@ -1,163 +1,17 @@
-import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
 import Button from "../../component/ui/Button";
 import Input from "../../component/ui/Input";
 import Alert from "../../component/ui/Alert";
 import "./AdminFormUI.css";
 import "./ImportProduct.css";
-import { getProductById } from "../../services/product.service";
-import { importProductAdmin } from "../../services/admin.service";
 import { FiPlus, FiTrash2 } from "react-icons/fi";
-
-interface ExistingVariant {
-    color: string;
-    currentQuantity: number;
-    addQuantity: string;
-    image: string | File;
-    isOldImage: boolean;
-}
-
-interface NewVariant {
-    color: string;
-    quantity: string;
-    image: File | null;
-}
+import { useImportProduct } from "../../hooks/features/admin/useImportProduct";
 
 function ImportProduct() {
-    const { id } = useParams<{ id: string }>();
-    const navigate = useNavigate();
-
-    const [baseInfo, setBaseInfo] = useState<any>(null);
-    const [existingVariants, setExistingVariants] = useState<ExistingVariant[]>([]);
-    const [newVariants, setNewVariants] = useState<NewVariant[]>([]);
-
-    const [alertMessage, setAlertMessage] = useState<{ text: string, type: 'success' | 'error' | 'warning' | 'info' } | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const [isSubmitting, setIsSubmitting] = useState(false);
-
-    useEffect(() => {
-        const fetchProduct = async () => {
-            if (!id) return;
-            try {
-                const data = await getProductById(id);
-                setBaseInfo({
-                    name: data.name || "",
-                    brand: data.brand?.name || "",
-                    category: data.category?.name || "",
-                    importPrice: data.importPrice || 0,
-                    price: data.price || 0,
-                    description: data.description || "",
-                    specifications: data.specifications || {}
-                });
-
-                if (data.variants && data.variants.length > 0) {
-                    setExistingVariants(data.variants.map((v: any) => ({
-                        color: v.color,
-                        currentQuantity: v.quantity,
-                        addQuantity: "", // Mặc định chưa nhập thêm gì
-                        image: v.image || "",
-                        isOldImage: true
-                    })));
-                }
-            } catch (error) {
-                setAlertMessage({ text: "Không thể tải thông tin sản phẩm.", type: "error" });
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        fetchProduct();
-    }, [id]);
-
-    // Xử lý thay đổi số lượng nhập thêm cho màu cũ
-    const handleExistingChange = (index: number, value: string) => {
-        const updated = [...existingVariants];
-        updated[index].addQuantity = value;
-        setExistingVariants(updated);
-    };
-
-    // Quản lý màu mới
-    const handleNewVariantTextChange = (index: number, field: 'color' | 'quantity', value: string) => {
-        const updated = [...newVariants];
-        updated[index][field] = value;
-        setNewVariants(updated);
-    };
-
-    const handleNewVariantImageChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            const updated = [...newVariants];
-            updated[index].image = e.target.files[0];
-            setNewVariants(updated);
-        }
-    };
-
-    const addNewVariantRow = () => setNewVariants(prev => [...prev, { color: "", quantity: "", image: null }]);
-    const removeNewVariantRow = (index: number) => setNewVariants(prev => prev.filter((_, i) => i !== index));
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-
-        // Validate Màu mới: phải có đủ Tên màu, Số lượng và Ảnh (Bắt buộc)
-        const invalidNew = newVariants.some(v => !v.color.trim() || !v.quantity || !v.image);
-        if (invalidNew) {
-            setAlertMessage({ text: "Tất cả các màu mới đều bắt buộc phải có đủ Tên màu, Số lượng và Hình ảnh!", type: "warning" });
-            return;
-        }
-
-        setIsSubmitting(true);
-        const data = new FormData();
-
-        // Gửi lại các thông tin cơ bản để backend không bị mất dữ liệu
-        data.append('name', baseInfo.name);
-        data.append('brand', baseInfo.brand);
-        data.append('category', baseInfo.category);
-        data.append('importPrice', baseInfo.importPrice.toString());
-        data.append('price', baseInfo.price.toString());
-        data.append('description', baseInfo.description);
-        data.append('specifications', JSON.stringify(baseInfo.specifications));
-
-        // Gom nhóm mảng Variants (Màu cũ + Màu mới)
-        const combinedVariantsData = [
-            ...existingVariants.map(v => {
-                const added = Number(v.addQuantity) || 0;
-                return {
-                    color: v.color,
-                    quantity: v.currentQuantity + added, // Cộng dồn số lượng
-                    image: typeof v.image === 'string' ? v.image : '',
-                    isNewImage: !v.isOldImage
-                };
-            }),
-            ...newVariants.map(v => ({
-                color: v.color,
-                quantity: Number(v.quantity),
-                image: '',
-                isNewImage: true
-            }))
-        ];
-        data.append('variants', JSON.stringify(combinedVariantsData));
-
-        // Thêm file ảnh vào form data (Chỉ áp dụng cho màu mới)
-        newVariants.forEach(v => {
-            if (v.image instanceof File) {
-                data.append('variant_images', v.image);
-            }
-        });
-
-        try {
-            if (id) {
-                const response = await importProductAdmin(id, data);
-                setAlertMessage({ text: response.message || "Nhập hàng thành công!", type: "success" });
-            }
-        } catch (error: any) {
-            setAlertMessage({ text: error.message || "Có lỗi xảy ra khi nhập hàng.", type: "error" });
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
-
-    const handleAlertClose = () => {
-        setAlertMessage(null);
-        if (alertMessage?.type === 'success') navigate("/admin/product");
-    };
+    const {
+        navigate, baseInfo, existingVariants, newVariants, alertMessage, isLoading, isSubmitting,
+        handleExistingChange, handleNewVariantTextChange, handleNewVariantImageChange, addNewVariantRow,
+        removeNewVariantRow, handleSubmit, handleAlertClose
+    } = useImportProduct();
 
     if (isLoading) return <div style={{ padding: '40px', textAlign: 'center' }}>Đang tải dữ liệu sản phẩm...</div>;
 

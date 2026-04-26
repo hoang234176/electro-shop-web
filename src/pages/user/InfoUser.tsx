@@ -1,42 +1,13 @@
-import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Button from "../../component/ui/Button";
 import UserSidebar from "../../component/layout/UserSidebar";
 import Alert from "../../component/ui/Alert";
 import "./InfoUser.css";
-import { type InfoErrorRes } from "../../services/user.service";
-import { useUserData } from "../../hooks/useUserData";
 import { formatDate } from "../../utils/formatDate.util";
+import { useInfoUser } from "../../hooks/features/user/useInfoUser";
 
 function InfoUser() {
-    const navigate = useNavigate();
-    const [showDeleteAlert, setShowDeleteAlert] = useState(false);
-
-    const { userInfo, isLoading, error } = useUserData();
-
-    const handleDeleteClick = () => {
-        setShowDeleteAlert(true);
-    };
-
-    const confirmDelete = () => {
-        // Giả lập hành động gọi API xóa tài khoản
-        localStorage.removeItem("token"); // Xóa trạng thái đăng nhập
-        setShowDeleteAlert(false);
-        navigate("/"); // Chuyển về trang chủ
-        window.location.reload(); // Reset lại toàn bộ giao diện Header
-    };
-
-    const cancelDelete = () => {
-        setShowDeleteAlert(false);
-    };
-
-    const isLoggedIn = !!localStorage.getItem("token");
-
-    useEffect(() => {
-        if (error && (error as InfoErrorRes).status === 500) {
-            navigate("/error500");
-        }
-    }, [error, navigate]);
+    const { showDeleteAlert, userInfo, handleDeleteClick, confirmDelete, cancelDelete, isLoggedIn } = useInfoUser();
 
     if (!isLoggedIn) {
         return (

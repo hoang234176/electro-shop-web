@@ -1,240 +1,19 @@
-import { useState, useRef, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
 import Button from "../../component/ui/Button";
 import Input from "../../component/ui/Input";
 import Alert from "../../component/ui/Alert";
 import "./AdminFormUI.css";
 import "./AddProduct.css";
-import { runGemini } from "../../services/ai.service";
-import { addProduct } from "../../services/admin.service";
 import { FiPlus, FiTrash2 } from "react-icons/fi";
 import { MdChat } from "react-icons/md"
+import { useAddProduct } from "../../hooks/features/admin/useAddProduct";
 
 function AddProduct() {
-    const navigate = useNavigate();
-    const location = useLocation();
-
-    // State lưu trữ dữ liệu form
-    const [formData, setFormData] = useState({
-        name: "",
-        brand: "",
-        category: "",
-        importPrice: "",
-        price: "",
-        // stock và imageUrl đã được chuyển vào trong variants
-        variants: [{ color: "", image: "" as string | File, quantity: "" }], // Quản lý hình ảnh và số lượng theo từng phiên bản
-        description: "",
-        specifications: [{ label: "", value: "" }] // Thông số kỹ thuật động
-    });
-
-    const [alertMessage, setAlertMessage] = useState<{ text: string, type: 'success' | 'error' | 'warning' | 'info' } | null>(null);
-
-    // Gemini Chatbot states
-    const [showGeminiChat, setShowGeminiChat] = useState(false);
-    const [geminiInput, setGeminiInput] = useState("");
-    // Mở rộng type của message để chứa dữ liệu có thể hành động (JSON từ AI)
-    const [geminiMessages, setGeminiMessages] = useState<{
-        type: 'user' | 'gemini',
-        text: string,
-        data?: any, // Dữ liệu JSON trả về từ AI
-    }[]>([]);
-    const [isGeminiLoading, setIsGeminiLoading] = useState(false);
-    const messagesEndRef = useRef<HTMLDivElement>(null);
-
-    // Scroll to bottom of chat messages
-    useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, [geminiMessages]);
-
-    // Hàm mới để áp dụng dữ liệu từ AI vào form
-    const handleApplySuggestion = (data: any) => {
-        setFormData(prev => {
-            const updatedFormData = { ...prev };
-
-            // Chỉ ghi đè nếu AI thực sự trả về dữ liệu cho trường đó
-            if (data.name) updatedFormData.name = data.name;
-            if (data.brand) updatedFormData.brand = data.brand;
-            if (data.category) updatedFormData.category = data.category;
-            if (data.importPrice) updatedFormData.importPrice = data.importPrice;
-            if (data.price) updatedFormData.price = data.price;
-            if (data.description) updatedFormData.description = data.description;
-
-            // Lọc ra các phiên bản thực sự có thông tin (tránh bị mảng rỗng làm mất dữ liệu)
-            if (Array.isArray(data.variants)) {
-                const validVariants = data.variants.filter((v: any) => v.color?.trim() || v.quantity?.trim());
-                if (validVariants.length > 0) {
-                    // Cố gắng giữ lại ảnh cũ ở cùng vị trí index (nếu có)
-                    updatedFormData.variants = validVariants.map((v: any, idx: number) => ({
-                        color: v.color || prev.variants[idx]?.color || "",
-                        quantity: v.quantity || prev.variants[idx]?.quantity || "",
-                        image: prev.variants[idx]?.image || ""
-                    }));
-                }
-            }
-
-            // Tương tự với thông số kỹ thuật
-            if (Array.isArray(data.specifications)) {
-                const validSpecs = data.specifications.filter((s: any) => s.label?.trim() || s.value?.trim());
-                if (validSpecs.length > 0) {
-                    updatedFormData.specifications = validSpecs;
-                }
-            }
-
-            return updatedFormData;
-        });
-
-        setAlertMessage({ text: "Đã cập nhật thông tin từ AI!", type: 'info' });
-        setShowGeminiChat(false); // Đóng cửa sổ chat sau khi áp dụng
-    };
-
-    const handleGeminiSend = async () => {
-        if (geminiInput.trim() === "" || isGeminiLoading) return;
-
-        const userMessage = geminiInput.trim();
-        const newUserMessage = { type: 'user' as const, text: userMessage };
-
-        setGeminiMessages(prev => [...prev, newUserMessage]);
-        setGeminiInput("");
-        setIsGeminiLoading(true);
-
-        try {
-            // Gọi hàm runGemini từ aiServices, nó sẽ trả về một object JSON
-            const jsonData = await runGemini(userMessage);
-
-            // Tạo tin nhắn phản hồi từ Gemini có chứa nút để hành động
-            const geminiResponse = {
-                type: 'gemini' as const,
-                text: "Tôi đã tìm thấy một số thông tin. Bạn có muốn áp dụng vào biểu mẫu không?",
-                data: jsonData, // Gắn dữ liệu JSON vào tin nhắn
-            };
-            setGeminiMessages(prev => [...prev, geminiResponse]);
-        } catch (error) {
-            const errorResponse = {
-                type: 'gemini' as const,
-                text: "Xin lỗi, tôi không thể xử lý yêu cầu của bạn lúc này. Vui lòng kiểm tra lại kết nối hoặc API key.",
-            };
-            setGeminiMessages(prev => [...prev, errorResponse]);
-        } finally {
-            setIsGeminiLoading(false);
-        }
-    };
-
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: value
-        }));
-    };
-
-    const handleVariantTextChange = (index: number, field: 'color' | 'quantity', value: string) => {
-        const newVariants = [...formData.variants];
-        newVariants[index][field] = value;
-        setFormData(prev => ({ ...prev, variants: newVariants }));
-    };
-
-    const handleVariantImageChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            const newVariants = [...formData.variants];
-            newVariants[index].image = e.target.files[0];
-            setFormData(prev => ({ ...prev, variants: newVariants }));
-        }
-    };
-    const addVariant = () => {
-        setFormData(prev => ({ ...prev, variants: [...prev.variants, { color: "", image: "", quantity: "" }] }));
-    };
-
-    const removeVariant = (index: number) => {
-        const newVariants = formData.variants.filter((_, i) => i !== index);
-        setFormData(prev => ({ ...prev, variants: newVariants }));
-    };
-
-    const handleSpecificationChange = (index: number, field: 'label' | 'value', value: string) => {
-        const newSpecifications = [...formData.specifications];
-        newSpecifications[index][field] = value;
-        setFormData(prev => ({ ...prev, specifications: newSpecifications }));
-    };
-
-    const addSpecification = () => {
-        setFormData(prev => ({ ...prev, specifications: [...prev.specifications, { label: "", value: "" }] }));
-    };
-
-    const removeSpecification = (index: number) => {
-        const newSpecifications = formData.specifications.filter((_, i) => i !== index);
-        setFormData(prev => ({ ...prev, specifications: newSpecifications }));
-    };
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-
-        // Validate cơ bản
-        if (!formData.name || !formData.price || !formData.importPrice || !formData.category || !formData.brand) {
-            setAlertMessage({ text: "Vui lòng điền đầy đủ các thông tin bắt buộc (*)", type: "warning" });
-            return;
-        }
-
-        // Validate variants: mỗi phiên bản phải có màu và số lượng
-        if (formData.variants.some(v => !v.color.trim() || !v.quantity.trim() || !(v.image instanceof File))) {
-            setAlertMessage({ text: "Mỗi phiên bản sản phẩm phải có Màu sắc, Số lượng và Hình ảnh đầy đủ.", type: "warning" });
-            return;
-        }
-
-        // Validate logic kinh doanh: Giá bán không được nhỏ hơn giá nhập
-        if (Number(formData.price) < Number(formData.importPrice)) {
-            setAlertMessage({ text: "Giá bán không thể nhỏ hơn giá nhập. Vui lòng kiểm tra lại!", type: "error" });
-            return;
-        }
-
-        // Tạo đối tượng FormData để gửi file và dữ liệu
-        const data = new FormData();
-        data.append('name', formData.name);
-        data.append('brand', formData.brand);
-        data.append('category', formData.category);
-        data.append('importPrice', formData.importPrice);
-        data.append('price', formData.price);
-        data.append('description', formData.description);
-
-        // Chuyển đổi specifications và variants thành chuỗi JSON
-        const specificationsObject = formData.specifications.reduce((acc, spec) => {
-            if (spec.label.trim()) acc[spec.label.trim()] = spec.value.trim();
-            return acc;
-        }, {} as Record<string, string>);
-        data.append('specifications', JSON.stringify(specificationsObject));
-
-        const variantsData = formData.variants.map(v => ({ color: v.color, quantity: Number(v.quantity) }));
-        data.append('variants', JSON.stringify(variantsData));
-
-        // Thêm các file ảnh vào FormData
-        formData.variants.forEach(variant => {
-            if (variant.image instanceof File) {
-                data.append('variant_images', variant.image);
-            }
-        });
-
-        try {
-            const response = await addProduct(data);
-            setAlertMessage({ text: response.message || "Thêm sản phẩm mới thành công!", type: "success" });
-            // navigate("/admin/product");
-        } catch (error: any) {
-            setAlertMessage({ text: error.message || "Có lỗi xảy ra, không thể thêm sản phẩm.", type: "error" });
-        }
-    };
-
-    const handleAlertClose = () => {
-        if (alertMessage?.type === 'success') {
-            setAlertMessage(null);
-            navigate("/admin/product"); // Quay về trang danh sách sau khi thêm thành công
-        } else {
-            setAlertMessage(null);
-        }
-    };
-
-    const getAlertTitle = (): "THÔNG BÁO" | "CẢNH BÁO" | "LỖI" => {
-        if (alertMessage?.type === 'warning') return "CẢNH BÁO";
-        if (alertMessage?.type === 'error') return "LỖI";
-        return "THÔNG BÁO";
-    };
+    const {
+        navigate, formData, alertMessage, showGeminiChat, setShowGeminiChat, geminiInput, setGeminiInput,
+        geminiMessages, isGeminiLoading, messagesEndRef, handleApplySuggestion, handleGeminiSend,
+        handleChange, handleVariantTextChange, handleVariantImageChange, addVariant, removeVariant,
+        handleSpecificationChange, addSpecification, removeSpecification, handleSubmit, handleAlertClose, getAlertTitle
+    } = useAddProduct();
 
     return (
         <div className="admin-page-container">
@@ -443,7 +222,7 @@ function AddProduct() {
                                     {msg.type === 'gemini' && msg.data && (
                                         <button
                                             className="gemini-apply-btn"
-                                            onClick={() => handleApplySuggestion(msg.data)}
+                                            onClick={() => handleApplySuggestion(msg.data!)}
                                         >
                                             Áp dụng vào Form
                                         </button>

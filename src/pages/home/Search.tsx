@@ -1,102 +1,11 @@
-import { useState, useEffect, useMemo } from "react";
-import { useLocation, Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import ProductCard from "../../component/ui/ProductCard";
-import { getAllProducts } from "../../services/product.service";
 import Loading from "../../component/ui/Loading";
 import "./Search.css";
-
-// Hook lấy query parameter từ URL
-function useQuery() {
-    return new URLSearchParams(useLocation().search);
-}
+import { useSearch } from "../../hooks/features/home/useSearch";
 
 function Search() {
-    const query = useQuery();
-    const navigate = useNavigate();
-    const [isNavigating, setIsNavigating] = useState(false);
-    const searchQuery = query.get("q") || ""; // Lấy giá trị của tham số "q" (VD: ?q=iphone)
-
-    const [priceRange, setPriceRange] = useState<string>("all");
-    const [sortBy, setSortBy] = useState<string>("default");
-
-    const [allProducts, setAllProducts] = useState<any[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-
-    useEffect(() => {
-        const fetchProducts = async () => {
-            setIsLoading(true);
-            try {
-                const data = await getAllProducts();
-                const formattedData = data.map((p: any) => ({
-                    id: p._id,
-                    brand: p.brand?.name || 'Unknown',
-                    category: p.category?.name || 'Unknown',
-                    name: p.name,
-                    price: p.price,
-                    imageUrl: p.variants?.[0]?.image || 'https://via.placeholder.com/300?text=No+Image',
-                    rating: p.rating || 0,
-                    reviewCount: p.reviewCount || 0,
-                    isOutOfStock: (p.variants?.reduce((sum: number, v: any) => sum + (v.quantity || 0), 0) || 0) <= 0
-                }));
-                setAllProducts(formattedData);
-            } catch (error) {
-                console.error("Lỗi khi tải sản phẩm:", error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        fetchProducts();
-    }, []);
-
-    // Tính toán kết quả hiển thị dựa trên search query và các bộ lọc
-    const filteredProducts = useMemo(() => {
-        let products = [...allProducts];
-
-        // 1. Lọc theo từ khóa tìm kiếm (so sánh không phân biệt hoa thường với Tên, Hãng và Danh mục)
-        if (searchQuery.trim() !== "") {
-            const lowerQuery = searchQuery.toLowerCase();
-            products = products.filter(p => 
-                p.name.toLowerCase().includes(lowerQuery) || 
-                p.brand.toLowerCase().includes(lowerQuery) ||
-                p.category.toLowerCase().includes(lowerQuery)
-            );
-        }
-
-        // 2. Lọc theo khoảng giá
-        products = products.filter((p) => {
-            switch (priceRange) {
-                case "under-10m":
-                    return p.price < 10000000;
-                case "10m-20m":
-                    return p.price >= 10000000 && p.price <= 20000000;
-                case "over-20m":
-                    return p.price > 20000000;
-                default:
-                    return true;
-            }
-        });
-
-        // 3. Sắp xếp
-        return [...products].sort((a, b) => {
-            switch (sortBy) {
-                case "price-asc":
-                    return a.price - b.price;
-                case "price-desc":
-                    return b.price - a.price;
-                default:
-                    return a.id - b.id;
-            }
-        });
-    }, [allProducts, searchQuery, priceRange, sortBy]);
-
-    const handleProductClick = (e: React.MouseEvent, productId: string) => {
-        e.preventDefault();
-        setIsNavigating(true);
-        setTimeout(() => {
-            setIsNavigating(false);
-            navigate(`/product/${productId}`);
-        }, 800);
-    };
+    const { searchQuery, isNavigating, priceRange, setPriceRange, sortBy, setSortBy, isLoading, currentProductsToDisplay, handleProductClick, currentPage, setCurrentPage, totalPages, getPaginationGroup } = useSearch();
 
     return (
         <div className="search-page-container">
@@ -184,8 +93,8 @@ function Search() {
                 <div className="product-grid">
                     {isLoading ? (
                         <p>Đang tải dữ liệu...</p>
-                    ) : filteredProducts.length > 0 ? (
-                        filteredProducts.map((product) => (
+                    ) : currentProductsToDisplay.length > 0 ? (
+                        currentProductsToDisplay.map((product) => (
                             <Link to={`/product/${product.id}`} key={product.id} style={{ textDecoration: 'none', color: 'inherit' }} onClick={(e) => handleProductClick(e, product.id)}>
                                 <ProductCard
                                     id={product.id}
@@ -205,6 +114,36 @@ function Search() {
                         </div>
                     )}
                 </div>
+
+                {totalPages > 1 && (
+                    <div className="pagination-container" style={{ marginTop: '30px' }}>
+                        <button 
+                            className="pagination-btn" 
+                            onClick={() => { setCurrentPage(prev => Math.max(prev - 1, 1)); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                            disabled={currentPage === 1}
+                        >
+                            Trước
+                        </button>
+                        
+                        {getPaginationGroup().map((page: number | string, index: number) => (
+                            <button 
+                                key={index} 
+                                className={`pagination-btn ${currentPage === page ? 'active' : ''} ${page === '...' ? 'dots' : ''}`}
+                                onClick={() => { if (typeof page === 'number') { setCurrentPage(page); window.scrollTo({ top: 0, behavior: 'smooth' }); } }}
+                                disabled={page === '...'}
+                            >
+                                {page}
+                            </button>
+                        ))}
+                        <button 
+                            className="pagination-btn" 
+                            onClick={() => { setCurrentPage(prev => Math.min(prev + 1, totalPages)); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                            disabled={currentPage === totalPages}
+                        >
+                            Sau
+                        </button>
+                    </div>
+                )}
             </main>
         </div>
     );

@@ -8,7 +8,7 @@ import searchIcon from "../../assets/search-icon.png";
 import { logout } from "../../services/auth.service";
 import { getCart } from "../../services/cart.service";
 import Loading from "../ui/Loading";
-import { clearUserCache } from "../../hooks/useUserData";
+import { clearUserCache } from "../../hooks/queries/useUserData";
 import { FiHome, FiGrid, FiTag, FiShoppingCart, FiUser, FiUserPlus, FiPackage, FiKey, FiLogOut } from "react-icons/fi";
 
 

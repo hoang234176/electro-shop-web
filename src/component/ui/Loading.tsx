@@ -32,6 +32,7 @@ const Loading: React.FC<LoadingProps> = ({ fullScreen = false, text = "ƒêang x·ª
                 <div className="loading-top-bar">
                     <div className="loading-progress-bar" style={{ width: `${currentProgress}%` }}></div>
                 </div>
+                {text && <div className="loading-text">{text}</div>}
             </div>
         );
     }
@@ -39,6 +40,7 @@ const Loading: React.FC<LoadingProps> = ({ fullScreen = false, text = "ƒêang x·ª
     return (
         <div className="loading-container">
             <div className="loading-spinner"></div>
+            {text && <div className="loading-text">{text}</div>}
         </div>
     );
 };

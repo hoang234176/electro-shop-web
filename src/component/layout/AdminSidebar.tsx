@@ -6,6 +6,10 @@ import Loading from "../ui/Loading";
 import { LuLayoutDashboard, LuUsers, LuLogOut} from "react-icons/lu";
 import { FiPackage, FiShoppingCart } from "react-icons/fi"
 
+interface AdminOrder {
+    cancelRequest?: boolean;
+}
+
 function AdminSidebar() {
     const location = useLocation();
     const navigate = useNavigate();
@@ -13,17 +17,17 @@ function AdminSidebar() {
     const [cancelRequestCount, setCancelRequestCount] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
 
-    const fetchCancelRequests = async () => {
-        try {
-            const data = await getAllOrdersAdmin();
-            const count = data.filter((order: any) => order.cancelRequest === true).length;
-            setCancelRequestCount(count);
-        } catch (error) {
-            console.error("Lỗi lấy số lượng yêu cầu hủy đơn", error);
-        }
-    };
-
     useEffect(() => {
+        const fetchCancelRequests = async () => {
+            try {
+                const data = await getAllOrdersAdmin();
+                const count = data.filter((order: AdminOrder) => order.cancelRequest === true).length;
+                setCancelRequestCount(count);
+            } catch (error) {
+                console.error("Lỗi lấy số lượng yêu cầu hủy đơn", error);
+            }
+        };
+
         fetchCancelRequests();
         window.addEventListener('adminOrderChanged', fetchCancelRequests);
         return () => {

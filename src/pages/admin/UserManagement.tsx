@@ -1,126 +1,16 @@
-import { useState, useEffect } from "react";
 import Button from "../../component/ui/Button";
 import Input from "../../component/ui/Input";
 import Alert from "../../component/ui/Alert";
 import "./UserManagement.css";
-import { DeleteUser } from "../../services/admin.service";
-import { GetAllUser } from "../../services/admin.service";
 import { FiTrash2 } from "react-icons/fi";
-
-interface User {
-    _id: string;
-    username: string;
-    name?: string;
-    fullname?: string;
-    email: string;
-    phone?: string;
-    role: string;
-    createdAt: string;
-    updatedAt?: string;
-    avatar?: string;
-    status?: string; // Trạng thái active/blocked (nếu sau này API Backend bổ sung)
-}
+import { useUserManagement } from "../../hooks/features/admin/useUserManagement";
 
 function UserManagement() {
-    const [users, setUsers] = useState<User[]>([]);
-    const [searchTerm, setSearchTerm] = useState("");
-
-    // State cho Modal cảnh báo
-    const [userToDelete, setUserToDelete] = useState<string | null>(null);
-    const [alertMessage, setAlertMessage] = useState<{ text: string, type: 'success' | 'error' | 'warning' | 'info' } | null>(null);
-
-    // State phân trang
-    const [currentPage, setCurrentPage] = useState(1);
-    const ITEMS_PER_PAGE = 5;
-
-    // Gọi API lấy danh sách người dùng khi Component mount
-    useEffect(() => {
-        const fetchUsers = async () => {
-            try {
-                const res = await GetAllUser();
-                // Hỗ trợ trường hợp backend trả về trực tiếp Array hoặc trả về { data: [...] }
-                const dataList = Array.isArray(res) ? res : (res?.data || res?.users || []);
-                setUsers(dataList);
-            } catch (error) {
-                console.error("Lỗi lấy danh sách người dùng:", error);
-            }
-        };
-        fetchUsers();
-    }, []);
-
-    // Lọc người dùng theo từ khóa (Tên hoặc Email)
-    const filteredUsers = users.filter(user => {
-        const displayName = user.name || user.fullname || user.username || "";
-        const matchSearch = displayName.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                            user.email.toLowerCase().includes(searchTerm.toLowerCase());
-        return matchSearch;
-    });
-
-    // Phân trang
-    const totalPages = Math.ceil(filteredUsers.length / ITEMS_PER_PAGE);
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    const currentUsers = filteredUsers.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-
-    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSearchTerm(e.target.value);
-        setCurrentPage(1);
-    };
-
-    const handleDeleteClick = (id: string) => {
-        setUserToDelete(id);
-    };
-
-    const confirmDelete = () => {
-        if (userToDelete) {
-            const user = users.find(u => u._id === userToDelete);
-            try {
-                if (user) {
-                    const response =  DeleteUser(user._id);
-                    // Cập nhật state (tạm thời) trước khi có API
-                    setUsers(users.filter(u => u._id !== userToDelete));
-                    setAlertMessage({ 
-                        text: `Đã xóa tài khoản ${user.email} thành công!`, 
-                        type: "success" 
-                    });
-                }
-            } catch (error: any) {
-                 setAlertMessage({ 
-                        text: `Xóa tài khoản ${user?.email || 'người dùng'} thất bại!`, 
-                        type: "error" 
-                    });
-            }
-           
-            setUserToDelete(null);
-        }
-    };
-
-    const getRoleBadgeClass = (role: string) => {
-        return role === 'ADMIN' ? "badge-purple" : "badge-secondary";
-    };
-
-    const getPaginationGroup = () => {
-        const pages = [];
-        if (totalPages <= 5) {
-            for (let i = 1; i <= totalPages; i++) pages.push(i);
-        } else {
-            if (currentPage <= 3) {
-                pages.push(1, 2, 3, 4, '...', totalPages);
-            } else if (currentPage >= totalPages - 2) {
-                pages.push(1, '...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
-            } else {
-                pages.push(1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages);
-            }
-        }
-        return pages;
-    };
-
-    const getAlertTitle = (): "THÔNG BÁO" | "CẢNH BÁO" | "LỖI" => {
-        if (alertMessage?.type === 'warning') return "CẢNH BÁO";
-        if (alertMessage?.type === 'error') return "LỖI";
-        return "THÔNG BÁO";
-    };
-
-    const userBeingDeleted = users.find(u => u._id === userToDelete);
+    const {
+        searchTerm, handleSearchChange, userToDelete, setUserToDelete, userBeingDeleted, confirmDelete,
+        alertMessage, setAlertMessage, getAlertTitle, startIndex, currentUsers, handleDeleteClick,
+        getRoleBadgeClass, totalPages, currentPage, setCurrentPage, getPaginationGroup
+    } = useUserManagement();
 
     return (
         <div className="admin-page-container">

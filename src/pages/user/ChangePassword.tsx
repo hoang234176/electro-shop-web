@@ -1,92 +1,13 @@
-import { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import UserSidebar from "../../component/layout/UserSidebar";
 import Input from "../../component/ui/Input";
 import Button from "../../component/ui/Button";
-import Alert, { type AlertProps } from "../../component/ui/Alert";
-import { changePassword } from "../../services/user.service";
+import Alert from "../../component/ui/Alert";
 import "./ChangePassword.css"; 
+import { useChangePassword } from "../../hooks/features/user/useChangePassword";
 
 function ChangePassword() {
-    const navigate = useNavigate();
-    
-    const [oldPassword, setOldPassword] = useState("");
-    const [newPassword, setNewPassword] = useState("");
-    const [confirmPassword, setConfirmPassword] = useState("");
-    const [debouncedNewPassword, setDebouncedNewPassword] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
-    const [alert, setAlert] = useState<AlertProps>({ show: false, type: 'info', message: '', title: '' });
-
-    // State ẩn/hiện mật khẩu cho từng ô
-    const [showOldPassword, setShowOldPassword] = useState(false);
-    const [showNewPassword, setShowNewPassword] = useState(false);
-    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
-    const isLoggedIn = !!localStorage.getItem("token");
-
-    // Debounce: Chờ 500ms sau khi người dùng ngừng gõ mới cập nhật state để check lỗi
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setDebouncedNewPassword(newPassword);
-        }, 500);
-        return () => clearTimeout(timer);
-    }, [newPassword]);
-
-    // Các quy tắc kiểm tra mật khẩu
-    const hasValidLength = debouncedNewPassword.length >= 8 && debouncedNewPassword.length <= 24;
-    const hasUppercase = /[A-Z]/.test(debouncedNewPassword);
-    const hasNumber = /[0-9]/.test(debouncedNewPassword);
-    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(debouncedNewPassword);
-
-    const isNewPasswordValid = hasValidLength && hasUppercase && hasNumber && hasSpecialChar;
-
-    const getRuleColor = (isValid: boolean) => {
-        if (!debouncedNewPassword) return "#6b7280"; // Màu xám khi chưa nhập gì
-        return isValid ? "#10b981" : "#ef4444"; // Xanh lá nếu đúng, Đỏ nếu sai
-    };
-
-    const getRuleIcon = (isValid: boolean) => {
-        if (!debouncedNewPassword) return "○";
-        return isValid ? "✔" : "✘";
-    };
-
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        
-        if (!oldPassword || !newPassword || !confirmPassword) {
-            setAlert({ show: true, type: 'warning', title: 'CẢNH BÁO', message: 'Vui lòng không để trống các thông tin.' });
-            return;
-        }
-
-        if (!isNewPasswordValid) {
-            setAlert({ show: true, type: 'error', title: 'LỖI', message: 'Mật khẩu mới chưa đáp ứng đủ các điều kiện bảo mật.' });
-            return;
-        }
-
-        if (newPassword !== confirmPassword) {
-            setAlert({ show: true, type: 'error', title: 'LỖI', message: 'Mật khẩu mới và xác nhận mật khẩu không trùng khớp.' });
-            return;
-        }
-
-        setIsLoading(true);
-        try {
-            // Gọi API thực tế để thay đổi mật khẩu
-            await changePassword({ oldPassword, newPassword });
-            
-            setAlert({ show: true, type: 'success', title: 'THÔNG BÁO', message: 'Thay đổi mật khẩu thành công.' });
-            setOldPassword("");
-            setNewPassword("");
-            setConfirmPassword("");
-        } catch (error: any) {
-            setAlert({ show: true, type: 'error', title: 'LỖI', message: error.message || 'Mật khẩu cũ sai vui lòng thử lại.' });
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const closeAlert = () => {
-        setAlert({ ...alert, show: false });
-    };
+    const { navigate, oldPassword, setOldPassword, newPassword, setNewPassword, confirmPassword, setConfirmPassword, isLoading, alert, showOldPassword, setShowOldPassword, showNewPassword, setShowNewPassword, showConfirmPassword, setShowConfirmPassword, isLoggedIn, hasValidLength, hasUppercase, hasNumber, hasSpecialChar, getRuleColor, getRuleIcon, handleSubmit, closeAlert } = useChangePassword();
 
     if (!isLoggedIn) {
         return (

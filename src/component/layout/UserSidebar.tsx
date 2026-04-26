@@ -2,8 +2,14 @@ import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import "./UserSidebar.css";
 import { getUserOrders } from "../../services/order.service";
-import { useUserData } from "../../hooks/useUserData";
+import { useUserData } from "../../hooks/queries/useUserData";
 import { FiUser, FiPackage, FiKey, FiEdit, FiClock, FiTruck, FiCheckCircle, FiXCircle } from "react-icons/fi";
+
+interface SidebarOrder {
+    paymentMethod?: string;
+    paymentStatus?: string;
+    orderStatus: string;
+}
 
 const UserSidebar = () => {
     const [avatar, setAvatar] = useState(
@@ -35,10 +41,10 @@ const UserSidebar = () => {
             try {
                 const orders = await getUserOrders();
                 const counts = { pending: 0, shipping: 0, delivered: 0, cancelled: 0 };
-                orders.forEach((order: any) => {
+                orders.forEach((order: SidebarOrder) => {
                     // Bỏ qua đếm các đơn hàng VNPay chưa thanh toán (đơn hàng ảo/bị bỏ dở)
                     if (order.paymentMethod === 'vnpay' && order.paymentStatus === 'unpaid') return;
-                    if (counts.hasOwnProperty(order.orderStatus)) {
+                    if (Object.prototype.hasOwnProperty.call(counts, order.orderStatus)) {
                         counts[order.orderStatus as keyof typeof counts]++;
                     }
                 });

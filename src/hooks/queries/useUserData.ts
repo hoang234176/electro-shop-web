@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { getInfoProfile } from '../services/user.service';
+import { getInfoProfile } from '../../services/user.service';
 
 // TODO: Bổ sung các thuộc tính chính xác của user (id, name, email...) cho khớp với API trả về
 export interface UserProfile {

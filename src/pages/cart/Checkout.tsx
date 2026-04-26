@@ -1,145 +1,22 @@
-import { useState, useEffect, useRef } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Button from "../../component/ui/Button";
 import Alert from "../../component/ui/Alert";
 import "./Checkout.css";
-import { getInfoProfile } from "../../services/user.service";
-import { createOrder } from "../../services/order.service";
+import { useCheckout } from "../../hooks/features/cart/useCheckout";
+
+interface CheckoutItemType {
+    compositeId: string;
+    imageUrl: string;
+    name: string;
+    quantity: number;
+    price: number;
+}
 
 function Checkout() {
-    const navigate = useNavigate();
-    const location = useLocation();
-    
-    // Lấy danh sách sản phẩm được truyền qua từ trang Cart
-    const checkoutItems = location.state?.selectedItems || [];
-
-    // Nếu người dùng truy cập thẳng link /checkout mà không có sản phẩm nào, tự động đá về giỏ hàng
-    useEffect(() => {
-        if (checkoutItems.length === 0) {
-            navigate("/cart");
-        }
-    }, [checkoutItems, navigate]);
-    
-    // State lưu trữ thông tin giao hàng
-    const [shippingInfo, setShippingInfo] = useState({
-        fullName: "",
-        phone: "",
-        address: "",
-        note: ""
-    });
-
-    // State phương thức thanh toán
-    const [paymentMethod, setPaymentMethod] = useState("cod");
-    const [alertMessage, setAlertMessage] = useState<{text: string, type: "success" | "warning" | "error"} | null>(null);
-    const [isProcessing, setIsProcessing] = useState(false);
-    
-    // Dùng useRef để lưu tạm thông tin order sau khi đặt thành công (tránh bị delay state)
-    const createdOrderRef = useRef<any>(null);
-
-    // Tự động điền thông tin người dùng
-    useEffect(() => {
-        const fetchUserProfile = async () => {
-            try {
-                // Gọi API lấy thông tin người dùng dựa trên token
-                const user = await getInfoProfile();
-                if (user) {
-                    setShippingInfo(prev => ({
-                        ...prev,
-                        fullName: user.fullname || prev.fullName,
-                        phone: user.phone || prev.phone,
-                        address: user.address || prev.address
-                    }));
-                }
-            } catch (error) {
-                console.error("Lỗi khi tự động điền thông tin người dùng:", error);
-            }
-        };
-        
-        fetchUserProfile();
-    }, []);
-
-    // Hàm format tiền tệ
-    const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
-    };
-
-    // Tính toán đơn hàng
-    const subtotal = checkoutItems.reduce((total: number, item: any) => total + item.price * item.quantity, 0);
-    const shippingFee = 30000; // Phí ship giả định
-    const totalAmount = subtotal + shippingFee;
-
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
-        setShippingInfo(prev => ({ ...prev, [name]: value }));
-    };
-
-    const handlePlaceOrder = async () => {
-        if (!shippingInfo.fullName || !shippingInfo.phone || !shippingInfo.address) {
-            setAlertMessage({ text: "Vui lòng điền đầy đủ thông tin giao hàng!", type: "warning" });
-            return;
-        }
-        
-        setIsProcessing(true);
-
-        try {
-            const orderData = {
-                items: checkoutItems.map((item: any) => ({
-                    product: item.productId,
-                    color: item.color,
-                    quantity: item.quantity,
-                    price: item.price
-                })),
-                shippingInfo,
-                paymentMethod,
-                subtotal,
-                shippingFee,
-                totalAmount
-            };
-
-            // Gọi API lưu vào cơ sở dữ liệu
-            const response = await createOrder(orderData);
-            
-            // Báo cho Header cập nhật lại số lượng trên icon giỏ hàng
-            window.dispatchEvent(new Event('cartUpdated'));
-
-            if (paymentMethod === 'vnpay' && response.payUrl) {
-                console.log("=== DEBUG: URL VNPay nhận được từ Backend ===", response.payUrl);
-                if (response.payUrl.startsWith('http')) {
-                    // Trả lại logic chuyển hướng trang thanh toán
-                    setAlertMessage({ text: "Đang chuyển hướng đến cổng thanh toán VNPay...", type: "success" });
-                    window.location.href = response.payUrl;
-                } else {
-                    console.error("=== LỖI: URL VNPay không hợp lệ (Không chứa http/https) ===", response.payUrl);
-                    setAlertMessage({ text: "Hệ thống chưa cấu hình URL thanh toán VNPay. Vui lòng kiểm tra lại file .env ở Backend.", type: "error" });
-                }
-            } else {
-                createdOrderRef.current = response.order;
-                setAlertMessage({ text: "Đặt hàng thành công! Cảm ơn bạn đã mua sắm tại ElectroShop.", type: "success" });
-            }
-        } catch (error: any) {
-            console.error("=== LỖI KHI ĐẶT HÀNG / THANH TOÁN ===", error);
-            setAlertMessage({ text: error.message || "Đã xảy ra lỗi khi đặt hàng. Vui lòng thử lại sau.", type: "error" });
-        } finally {
-            setIsProcessing(false);
-        }
-    };
-
-    const handleAlertClose = () => {
-        if (alertMessage?.type === "success" && paymentMethod !== 'vnpay') {
-            setAlertMessage(null);
-            navigate("/invoice", { 
-                state: { checkoutItems, shippingInfo, paymentMethod, totalAmount, subtotal, shippingFee, orderId: createdOrderRef.current?._id } 
-            }); 
-        } else {
-            setAlertMessage(null);
-        }
-    };
-
-    const getAlertTitle = (): "THÔNG BÁO" | "CẢNH BÁO" | "LỖI" => {
-        if (alertMessage?.type === 'warning') return "CẢNH BÁO";
-        if (alertMessage?.type === 'error') return "LỖI";
-        return "THÔNG BÁO";
-    };
+    const {
+        checkoutItems, shippingInfo, paymentMethod, setPaymentMethod, alertMessage, isProcessing,
+        formatCurrency, subtotal, shippingFee, totalAmount, handleInputChange, handlePlaceOrder, handleAlertClose, getAlertTitle
+    } = useCheckout();
 
     return (
         <div className="checkout-page-container">
@@ -204,7 +81,7 @@ function Checkout() {
                 <h2 className="summary-title">Đơn hàng của bạn</h2>
                 
                 <div className="checkout-items-list">
-                    {checkoutItems.map((item: any) => (
+                    {checkoutItems.map((item: CheckoutItemType) => (
                         <div key={item.compositeId} className="checkout-item">
                             <div className="item-img-wrapper">
                                 <img src={item.imageUrl} alt={item.name} />

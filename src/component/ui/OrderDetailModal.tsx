@@ -1,8 +1,34 @@
 import React from 'react';
 import './OrderDetailModal.css';
 
+interface OrderVariant {
+    color: string;
+    image?: string;
+}
+
+interface OrderItem {
+    product?: {
+        name?: string;
+        variants?: OrderVariant[];
+    };
+    color?: string;
+    price: number;
+    quantity: number;
+}
+
+export interface OrderDetail {
+    _id: string;
+    user?: { fullname?: string; email?: string; phone?: string };
+    shippingInfo?: { fullName?: string; phone?: string; address?: string; note?: string };
+    items: OrderItem[];
+    subtotal: number;
+    shippingFee: number;
+    totalAmount: number;
+    paymentMethod: string;
+}
+
 interface OrderDetailModalProps {
-    order: any;
+    order: OrderDetail | null;
     onClose: () => void;
 }
 
@@ -50,9 +76,9 @@ const OrderDetailModal: React.FC<OrderDetailModalProps> = ({ order, onClose }) =
                                 </tr>
                             </thead>
                             <tbody>
-                                {order.items.map((item: any, index: number) => {
+                                {order.items.map((item: OrderItem, index: number) => {
                                     const product = item.product || {};
-                                    const variant = product.variants?.find((v: any) => v.color === item.color);
+                                    const variant = product.variants?.find((v: OrderVariant) => v.color === item.color);
                                     const imageUrl = variant?.image || product.variants?.[0]?.image || 'https://via.placeholder.com/150?text=No+Image';
                                     
                                     return (

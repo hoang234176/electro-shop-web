@@ -1,154 +1,18 @@
-import { useState, useEffect } from "react";
-import { useLocation, useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Input from "../../component/ui/Input";
 import Button from "../../component/ui/Button";
 import Alert  from "../../component/ui/Alert";
-import { type AlertProps } from "../../component/ui/Alert";
 import "./Auth.css";
-// Giả định các service này sẽ được tạo trong `authServices.ts`
-import { forgotPasswordRequest, verifyResetCode, verifyAndResetPassword } from "../../services/auth.service";
 import Loading from "../../component/ui/Loading";
+import { useForgotPassword } from "../../hooks/features/auth/useForgotPassword";
 
 function ForgotPassword() {
-    const navigate = useNavigate();
-    const location = useLocation();
-
-    const [step, setStep] = useState(1); // 1: Nhập username, 2: Nhập code, 3: Đặt lại mật khẩu, 4: Thành công
-    const [username, setUsername] = useState(location.state?.username || "");
-    const [code, setCode] = useState("");
-    const [password, setPassword] = useState("");
-    const [confirmPassword, setConfirmPassword] = useState("");
-    const [debouncedPassword, setDebouncedPassword] = useState("");
-    const [maskedEmail, setMaskedEmail] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
-    const [alert, setAlert] = useState<AlertProps>({ show: false, type: 'info', message: '', title: '' });
-
-    // State cho ẩn/hiện mật khẩu
-    const [isShowPassword, setIsShowPassword] = useState(false);
-    const [isShowConfirmPassword, setIsShowConfirmPassword] = useState(false);
-
-    // Cuộn lên đầu trang khi vào trang
-    useEffect(() => {
-        window.scrollTo(0, 0);
-    }, []);
-
-    // Debounce mật khẩu để kiểm tra điều kiện
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setDebouncedPassword(password);
-        }, 500);
-        return () => clearTimeout(timer);
-    }, [password]);
-
-    const hasValidLength = debouncedPassword.length >= 8 && debouncedPassword.length <= 24;
-    const hasUppercase = /[A-Z]/.test(debouncedPassword);
-    const hasNumber = /[0-9]/.test(debouncedPassword);
-    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(debouncedPassword);
-
-    const isPasswordValid = hasValidLength && hasUppercase && hasNumber && hasSpecialChar;
-
-    const getRuleColor = (isValid: boolean) => {
-        if (!debouncedPassword) return "#6b7280";
-        return isValid ? "#10b981" : "#ef4444";
-    };
-
-    const getRuleIcon = (isValid: boolean) => {
-        if (!debouncedPassword) return "○";
-        return isValid ? "✔" : "✘";
-    };
-
-    // Xử lý gửi yêu cầu lấy lại mật khẩu
-    const handleUsernameSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        if (!username.trim()) {
-            setAlert({ show: true, type: 'warning', title: 'CẢNH BÁO', message: 'Vui lòng nhập tên đăng nhập.' });
-            return;
-        }
-        setIsLoading(true);
-        try {
-            const res = await forgotPasswordRequest({ username });
-            if (res.maskedEmail) {
-                setMaskedEmail(res.maskedEmail);
-                setAlert({ show: false, type: 'success', title: 'THÔNG BÁO', message: "" });
-                setStep(2);
-            } else {
-                 // Trường hợp backend trả về thông báo chung (không tìm thấy user)
-                 setAlert({ show: true, type: 'info', title: 'THÔNG BÁO', message: res.message });
-            }
-        } catch (error: any) {
-            setAlert({ show: true, type: 'error', title: 'LỖI', message: error.message || 'Đã xảy ra lỗi. Vui lòng thử lại.' });
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    // Xử lý kiểm tra mã code
-    const handleCodeSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        if (!code.trim() || code.length !== 6) {
-            setAlert({ show: true, type: 'warning', title: 'CẢNH BÁO', message: 'Vui lòng nhập mã xác thực gồm 6 chữ số.' });
-            return;
-        }
-        setIsLoading(true);
-        try {
-            const res = await verifyResetCode({ username, code: code.trim() });
-            setTimeout(() => {
-                setAlert({ show: false, type: 'success', title: 'THÔNG BÁO', message: res.message });
-                setStep(3); // Chuyển sang bước nhập mật khẩu mới
-                setIsLoading(false);
-            }, 800); // Hiển thị UI loading 800ms trước khi chuyển bước
-        } catch (error: any) {
-            setAlert({ show: true, type: 'error', title: 'LỖI', message: error.message || 'Mã không chính xác hoặc đã hết hạn.' });
-            setIsLoading(false);
-        }
-    };
-
-    // Xử lý đặt lại mật khẩu
-    const handleResetSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        
-        if (!isPasswordValid) {
-            setAlert({ show: true, type: 'warning', title: 'CẢNH BÁO', message: 'Mật khẩu mới chưa đáp ứng đủ các điều kiện bảo mật.' });
-            return;
-        }
-
-        if (password !== confirmPassword) {
-            setAlert({ show: true, type: 'warning', title: 'CẢNH BÁO', message: 'Mật khẩu xác nhận không khớp.' });
-            return;
-        }
-        setIsLoading(true);
-        try {
-            const res = await verifyAndResetPassword({ username, code: code.trim(), password });
-            setTimeout(() => {
-                setStep(4); // Chuyển sang bước thành công
-                setIsLoading(false);
-            }, 800); // Hiển thị UI loading 800ms trước khi chuyển bước
-        } catch (error: any) {
-            setIsLoading(false);
-            if (error.status === 500) {
-                navigate("/error500");
-            } else {
-                setAlert({ show: true, type: 'error', title: 'LỖI', message: error.message || 'Đã xảy ra lỗi khi đặt lại mật khẩu.' });
-            }
-        }
-    };
-    
-    // Xử lý gửi lại mã
-    const handleResendCode = async () => {
-        setIsLoading(true);
-        try {
-            await forgotPasswordRequest({ username });
-            setAlert({ show: true, type: 'success', title: 'THÔNG BÁO', message: 'Một mã mới đã được gửi đi.' });
-        } catch (error: any) {
-            setAlert({ show: true, type: 'error', title: 'LỖI', message: error.message || 'Không thể gửi lại mã. Vui lòng thử lại sau.' });
-        } finally {
-            setIsLoading(false);
-        }
-    }
-
-    const closeAlert = () => {
-        setAlert({ ...alert, show: false });
-    };
+    const {
+        step, navigate, username, setUsername, code, setCode, password, setPassword, confirmPassword, setConfirmPassword,
+        maskedEmail, isLoading, alert, isShowPassword, setIsShowPassword, isShowConfirmPassword, setIsShowConfirmPassword,
+        hasValidLength, hasUppercase, hasNumber, hasSpecialChar, getRuleColor, getRuleIcon,
+        handleUsernameSubmit, handleCodeSubmit, handleResetSubmit, handleResendCode, closeAlert
+    } = useForgotPassword();
 
     const renderStep = () => {
         switch (step) {

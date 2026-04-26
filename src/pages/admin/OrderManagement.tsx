@@ -1,207 +1,19 @@
-import { useState, useEffect } from "react";
 import Button from "../../component/ui/Button";
 import Input from "../../component/ui/Input";
 import Alert from "../../component/ui/Alert";
 import "./OrderManagement.css";
-import { getAllOrdersAdmin, updateOrderStatusAdmin } from "../../services/admin.service";
-import OrderDetailModal from "../../component/ui/OrderDetailModal";
+import OrderDetailModal, { type OrderDetail } from "../../component/ui/OrderDetailModal";
 import Loading from "../../component/ui/Loading";
 import { LuNewspaper } from "react-icons/lu"
-
-interface DisplayOrder {
-    id: string;
-    customer: string;
-    phone: string;
-    date: string;
-    total: number;
-    status: string;
-    payment: string;
-    paymentStatus: string;
-    cancelRequest: boolean;
-}
+import { useOrderManagement } from "../../hooks/features/admin/useOrderManagement";
 
 function OrderManagement() {
-    const [orders, setOrders] = useState<DisplayOrder[]>([]);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [statusFilter, setStatusFilter] = useState("all");
-    const [isLoading, setIsLoading] = useState(true);
-
-    // State lưu dữ liệu đơn hàng gốc để hiển thị chi tiết
-    const [rawOrders, setRawOrders] = useState<any[]>([]);
-    
-    // State cho Modal cảnh báo
-    const [orderToCancel, setOrderToCancel] = useState<string | null>(null);
-    const [alertMessage, setAlertMessage] = useState<{ text: string, type: 'success' | 'error' | 'warning' | 'info' } | null>(null);
-
-    // State phân trang
-    const [currentPage, setCurrentPage] = useState(1);
-    const ITEMS_PER_PAGE = 5;
-
-    // State cho Modal Xem chi tiết đơn hàng
-    const [selectedOrderDetails, setSelectedOrderDetails] = useState<any | null>(null);
-
-    useEffect(() => {
-        const fetchOrders = async () => {
-            setIsLoading(true);
-            try {
-                const data = await getAllOrdersAdmin();
-                setRawOrders(data); // Lưu lại dữ liệu gốc
-                const formattedData: DisplayOrder[] = data.map((order: any) => ({
-                    id: order._id,
-                    customer: order.user?.fullname || 'N/A',
-                    phone: order.user?.phone || 'N/A',
-                    date: new Date(order.createdAt).toLocaleDateString('vi-VN'),
-                    total: order.totalAmount,
-                    status: order.orderStatus,
-                    payment: order.paymentMethod.toUpperCase(),
-                    paymentStatus: order.paymentStatus,
-                    cancelRequest: order.cancelRequest || false,
-                }));
-                setOrders(formattedData);
-            } catch (error: any) {
-                setAlertMessage({ text: error.message || "Không thể tải danh sách đơn hàng.", type: "error" });
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        fetchOrders();
-    }, []);
-
-    const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
-    };
-
-    // Lọc đơn hàng theo từ khóa (Mã ĐH hoặc Tên KH) và Trạng thái
-    const filteredOrders = orders.filter(order => {
-        const matchSearch = order.id.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                            order.customer.toLowerCase().includes(searchTerm.toLowerCase());
-        
-        // Thêm logic lọc riêng cho "Yêu cầu hủy"
-        const matchStatus = statusFilter === "all" || 
-                            (statusFilter === "cancel_request" ? order.cancelRequest === true : order.status === statusFilter);
-                            
-        return matchSearch && matchStatus;
-    });
-
-    // Phân trang
-    const totalPages = Math.ceil(filteredOrders.length / ITEMS_PER_PAGE);
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    const currentOrders = filteredOrders.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-
-    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSearchTerm(e.target.value);
-        setCurrentPage(1);
-    };
-
-    const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        setStatusFilter(e.target.value);
-        setCurrentPage(1);
-    };
-
-    // Xử lý thay đổi trạng thái trực tiếp
-    const handleStatusChange = async (id: string, newStatus: string) => {
-        if (newStatus === "cancelled") {
-            setOrderToCancel(id);
-        } else {
-            try {
-                await updateOrderStatusAdmin(id, newStatus);
-                updateOrderStatus(id, newStatus);
-                setAlertMessage({ text: `Đã cập nhật trạng thái đơn hàng #${id.slice(-6)} thành công!`, type: "success" });
-                window.dispatchEvent(new Event('adminOrderChanged'));
-            } catch (error: any) {
-                setAlertMessage({ text: error.message || "Cập nhật trạng thái thất bại.", type: "error" });
-            }
-        }
-    };
-
-    const updateOrderStatus = (id: string, status: string) => {
-        setOrders(prevOrders => prevOrders.map(o => o.id === id ? { ...o, status } : o));
-    };
-
-    const updateCancelRequest = (id: string, cancelRequest: boolean) => {
-        setOrders(prevOrders => prevOrders.map(o => o.id === id ? { ...o, cancelRequest } : o));
-    };
-
-    const handleRejectCancel = async (id: string) => {
-        const confirmReject = window.confirm("Bạn có chắc chắn muốn từ chối yêu cầu hủy đơn này?");
-        if (!confirmReject) return;
-
-        try {
-            await updateOrderStatusAdmin(id, "shipping", true); // Bật cờ rejectCancel
-            updateCancelRequest(id, false);
-            setAlertMessage({ text: `Đã từ chối yêu cầu hủy đơn hàng #${id.slice(-6)}.`, type: "success" });
-            window.dispatchEvent(new Event('adminOrderChanged'));
-        } catch (error: any) {
-            setAlertMessage({ text: error.message || "Từ chối thất bại.", type: "error" });
-        }
-    };
-
-    const confirmCancel = async () => {
-        if (orderToCancel) {
-            try {
-                await updateOrderStatusAdmin(orderToCancel, "cancelled");
-                updateOrderStatus(orderToCancel, "cancelled");
-                updateCancelRequest(orderToCancel, false);
-                setAlertMessage({ text: `Đã hủy đơn hàng #${orderToCancel.slice(-6)}.`, type: "success" });
-                window.dispatchEvent(new Event('adminOrderChanged'));
-            } catch (error: any) {
-                setAlertMessage({ text: error.message || "Hủy đơn hàng thất bại.", type: "error" });
-            } finally {
-                setOrderToCancel(null);
-            }
-        }
-    };
-
-    // Hàm mở Modal xem chi tiết
-    const handleViewDetails = (id: string) => {
-        const order = rawOrders.find(o => o._id === id);
-        if (order) setSelectedOrderDetails(order);
-    };
-
-    // Render badge trạng thái
-    const getStatusBadgeClass = (status: string) => {
-        switch (status) {
-            case "pending": return "badge-warning";
-            case "shipping": return "badge-info";
-            case "delivered": return "badge-success";
-            case "cancelled": return "badge-danger";
-            default: return "badge-secondary";
-        }
-    };
-
-    const getPaymentStatusText = (status: string) => {
-        switch (status) {
-            case 'paid': return 'Đã thanh toán';
-            case 'unpaid': return 'Chưa thanh toán';
-            case 'refunded': return 'Đã hoàn tiền';
-            case 'refund_failed': return 'Lỗi hoàn tiền';
-            case 'payment_failed': return 'Thất bại';
-            case 'paid_on_delivery': return 'Thanh toán khi nhận';
-            default: return '';
-        }
-    };
-
-    const getPaginationGroup = () => {
-        const pages = [];
-        if (totalPages <= 5) {
-            for (let i = 1; i <= totalPages; i++) pages.push(i);
-        } else {
-            if (currentPage <= 3) {
-                pages.push(1, 2, 3, 4, '...', totalPages);
-            } else if (currentPage >= totalPages - 2) {
-                pages.push(1, '...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
-            } else {
-                pages.push(1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages);
-            }
-        }
-        return pages;
-    };
-
-    const getAlertTitle = (): "THÔNG BÁO" | "CẢNH BÁO" | "LỖI" => {
-        if (alertMessage?.type === 'warning') return "CẢNH BÁO";
-        if (alertMessage?.type === 'error') return "LỖI";
-        return "THÔNG BÁO";
-    };
+    const {
+        searchTerm, handleSearchChange, statusFilter, handleFilterChange, isLoading, currentOrders,
+        formatCurrency, getPaymentStatusText, orderToCancel, setOrderToCancel, confirmCancel, handleStatusChange,
+        getStatusBadgeClass, handleViewDetails, handleRejectCancel, alertMessage, setAlertMessage, getAlertTitle,
+        totalPages, currentPage, setCurrentPage, getPaginationGroup, selectedOrderDetails, setSelectedOrderDetails
+    } = useOrderManagement();
 
     return (
         <div className="admin-page-container">
@@ -337,7 +149,7 @@ function OrderManagement() {
                     <div className="pagination-container">
                         <button 
                             className="pagination-btn" 
-                            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                            onClick={() => { setCurrentPage(prev => Math.max(prev - 1, 1)); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                             disabled={currentPage === 1}
                         >
                             Trước
@@ -347,7 +159,7 @@ function OrderManagement() {
                             <button 
                                 key={index} 
                                 className={`pagination-btn ${currentPage === page ? 'active' : ''} ${page === '...' ? 'dots' : ''}`}
-                                onClick={() => typeof page === 'number' && setCurrentPage(page)}
+                                onClick={() => { if (typeof page === 'number') { setCurrentPage(page); window.scrollTo({ top: 0, behavior: 'smooth' }); } }}
                                 disabled={page === '...'}
                             >
                                 {page}
@@ -355,7 +167,7 @@ function OrderManagement() {
                         ))}
                         <button 
                             className="pagination-btn" 
-                            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                            onClick={() => { setCurrentPage(prev => Math.min(prev + 1, totalPages)); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                             disabled={currentPage === totalPages}
                         >
                             Sau
@@ -366,7 +178,7 @@ function OrderManagement() {
 
             {/* Modal Chi tiết đơn hàng */}
             <OrderDetailModal 
-                order={selectedOrderDetails} 
+                order={selectedOrderDetails as unknown as OrderDetail} 
                 onClose={() => setSelectedOrderDetails(null)} 
             />
         </div>

@@ -7,7 +7,18 @@ if (!GEMINI_API_KEY) {
 
 const aiClient = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 
-export const runGemini = async (userInput: string): Promise<any> => {
+export interface GeminiParsedResponse {
+    name?: string;
+    brand?: string;
+    category?: string;
+    importPrice?: string;
+    price?: string;
+    description?: string;
+    variants?: { color?: string; quantity?: string; image?: string }[];
+    specifications?: { label?: string; value?: string }[];
+}
+
+export const runGemini = async (userInput: string): Promise<GeminiParsedResponse> => {
     // Khuôn mẫu JSON được thiết kế riêng cho form React của bạn
     const systemPrompt = `
 Bạn là AI chuyên bóc tách dữ liệu sản phẩm công nghệ. 
@@ -63,10 +74,17 @@ Quy tắc bắt buộc:
 // Tạo bộ nhớ đệm (Cache) để lưu trữ kết quả và Promise, ngăn Strict Mode gọi AI 2 lần cùng lúc
 const relatedProductsCache = new Map<string, Promise<string[]> | string[]>();
 
-export const getRelatedProductsFromAI = async (currentProduct: any, availableProducts: any[]): Promise<string[]> => {
+export interface AIProduct {
+    _id?: string;
+    id?: string;
+    name?: string;
+}
+
+export const getRelatedProductsFromAI = async (currentProduct: AIProduct, availableProducts: AIProduct[]): Promise<string[]> => {
     if (availableProducts.length === 0) return [];
 
     const productId = currentProduct._id || currentProduct.id;
+    if (!productId) return [];
 
     // 1. Kiểm tra Cache: Nếu đã có dữ liệu hoặc đang chờ API trả về, lấy luôn không gọi lại
     if (relatedProductsCache.has(productId)) {
@@ -76,7 +94,7 @@ export const getRelatedProductsFromAI = async (currentProduct: any, availablePro
     const prompt = `
 Tôi đang xem sản phẩm: "${currentProduct.name}".
 Danh sách các sản phẩm khác trong cửa hàng:
-${availableProducts.map((p: any) => `- ID: ${p._id || p.id}, Tên: ${p.name}`).join('\n')}
+${availableProducts.map((p: AIProduct) => `- ID: ${p._id || p.id}, Tên: ${p.name}`).join('\n')}
 
 Dựa vào danh sách trên, hãy chọn ra tối đa 4 sản phẩm là phụ kiện hoặc sản phẩm liên quan phù hợp và tương thích với sản phẩm tôi đang xem.
 Dựa vào các sản phẩm bán chạy mà bạn đã tìm ra hãy sắp xếp chúng từ bán chạy nhất đến không bán chạy nhất.

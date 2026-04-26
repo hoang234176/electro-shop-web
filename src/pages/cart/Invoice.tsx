@@ -1,120 +1,19 @@
-import { useEffect, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Button from "../../component/ui/Button";
-import { getUserOrders, cancelOrder } from "../../services/order.service";
 import Loading from "../../component/ui/Loading";
 import "./Invoice.css";
+import { useInvoice } from "../../hooks/features/cart/useInvoice";
+
+interface InvoiceItem {
+    compositeId?: string;
+    name: string;
+    color: string;
+    quantity: number;
+    price: number;
+}
 
 function Invoice() {
-    const location = useLocation();
-    const navigate = useNavigate();
-
-    // Lấy dữ liệu được truyền sang từ trang Checkout
-    const stateData = location.state;
-    
-    // Lấy query parameters từ URL (Dành cho VNPay return)
-    const queryParams = new URLSearchParams(location.search);
-    const isVNPayReturn = queryParams.has('vnp_TxnRef');
-    const vnpResponseCode = queryParams.get('vnp_ResponseCode');
-    const vnpTxnRef = queryParams.get('vnp_TxnRef');
-    const vnpAmount = queryParams.get('vnp_Amount');
-
-    const [orderData, setOrderData] = useState<any>(null);
-    const [isLoading, setIsLoading] = useState(false);
-
-    useEffect(() => {
-        // Nếu không có state (truy cập trực tiếp) VÀ không phải là redirect từ VNPay về, điều hướng về trang chủ
-        if (!stateData && !isVNPayReturn) {
-            navigate("/");
-            return;
-        }
-
-        if (stateData) {
-            setOrderData({
-                checkoutItems: stateData.checkoutItems || [],
-                shippingInfo: stateData.shippingInfo || {},
-                paymentMethod: stateData.paymentMethod || "cod",
-                totalAmount: stateData.totalAmount || 0,
-                subtotal: stateData.subtotal || 0,
-                shippingFee: stateData.shippingFee || 0,
-                orderId: stateData.orderId || "",
-                isSuccess: true
-            });
-        } else if (isVNPayReturn) {
-            const fetchOrderDetails = async () => {
-                setIsLoading(true);
-                try {
-                    // Lấy tất cả đơn hàng và tìm đơn hàng hiện tại dựa theo vnpTxnRef (orderId)
-                    const orders = await getUserOrders();
-                    const order = orders.find((o: any) => o._id === vnpTxnRef);
-                    if (order) {
-                        const items = order.items.map((item: any) => ({
-                            productId: item.product?._id || '',
-                            name: item.product?.name || 'Sản phẩm',
-                            color: item.color,
-                            price: item.price,
-                            quantity: item.quantity,
-                            imageUrl: item.product?.variants?.find((v: any) => v.color === item.color)?.image || 'https://via.placeholder.com/150',
-                            compositeId: `${item.product?._id}_${item.color}`
-                        }));
-
-                        setOrderData({
-                            checkoutItems: items,
-                            shippingInfo: order.shippingInfo || {},
-                            paymentMethod: order.paymentMethod || "vnpay",
-                            totalAmount: order.totalAmount || (vnpAmount ? parseInt(vnpAmount) / 100 : 0),
-                            subtotal: order.subtotal || 0,
-                            shippingFee: order.shippingFee || 0,
-                            orderId: vnpTxnRef || "",
-                            isSuccess: vnpResponseCode === "00"
-                        });
-
-                        // Nếu người dùng hủy thanh toán, tự động xóa giao dịch và về trang checkout
-                        if (vnpResponseCode !== "00") {
-                            try {
-                                await cancelOrder(vnpTxnRef as string);
-                            } catch (err) {
-                                console.error("Lỗi khi tự động xóa đơn do thanh toán thất bại:", err);
-                            }
-                            navigate("/checkout", { state: { selectedItems: items }, replace: true });
-                            return; // Dừng render
-                        }
-                    } else {
-                        // Fallback nếu không tìm thấy đơn hàng trên DB
-                        if (vnpResponseCode !== "00") {
-                            navigate("/cart", { replace: true });
-                            return;
-                        }
-                        setOrderData({
-                            checkoutItems: [],
-                            shippingInfo: {},
-                            paymentMethod: "vnpay",
-                            totalAmount: vnpAmount ? parseInt(vnpAmount) / 100 : 0,
-                            subtotal: 0,
-                            shippingFee: 0,
-                            orderId: vnpTxnRef || "",
-                            isSuccess: vnpResponseCode === "00"
-                        });
-                    }
-                } catch (error) {
-                    console.error("Lỗi khi lấy thông tin đơn hàng:", error);
-                    setOrderData({
-                        checkoutItems: [],
-                        shippingInfo: {},
-                        paymentMethod: "vnpay",
-                        totalAmount: vnpAmount ? parseInt(vnpAmount) / 100 : 0,
-                        subtotal: 0,
-                        shippingFee: 0,
-                        orderId: vnpTxnRef || "",
-                        isSuccess: vnpResponseCode === "00"
-                    });
-                } finally {
-                    setIsLoading(false);
-                }
-            };
-            fetchOrderDetails();
-        }
-    }, [stateData, isVNPayReturn, navigate, vnpTxnRef, vnpAmount, vnpResponseCode]);
+    const { stateData, isVNPayReturn, orderData, isLoading, formatCurrency, displayPaymentMethod, displayDate } = useInvoice();
 
     if (!stateData && !isVNPayReturn) return null; // Tránh render lỗi trong lúc chờ điều hướng
 
@@ -126,14 +25,7 @@ function Invoice() {
         );
     }
 
-    const { checkoutItems, shippingInfo, paymentMethod, totalAmount, subtotal, shippingFee, orderId, isSuccess } = orderData;
-
-    const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
-    };
-
-    const displayPaymentMethod = paymentMethod === 'vnpay' ? 'Thanh toán qua VNPay' : 'Thanh toán khi nhận hàng (COD)';
-    const displayDate = new Date().toLocaleDateString("vi-VN");
+    const { checkoutItems, shippingInfo, totalAmount, subtotal, shippingFee, orderId, isSuccess } = orderData;
 
     return (
         <div className="invoice-container">
@@ -178,7 +70,7 @@ function Invoice() {
                                     <div className="col-price">Đơn giá</div>
                                     <div className="col-total">Thành tiền</div>
                                 </div>
-                                {checkoutItems.map((item: any, index: number) => (
+                                {checkoutItems.map((item: InvoiceItem, index: number) => (
                                     <div className="table-row" key={item.compositeId || index}>
                                         <div className="col-product">{item.name} - Bản màu {item.color}</div>
                                         <div className="col-qty">{item.quantity}</div>
