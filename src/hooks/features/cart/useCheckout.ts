@@ -2,23 +2,8 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { getInfoProfile } from "../../../services/user.service";
 import { createOrder } from "../../../services/order.service";
-
-export interface CheckoutItem {
-    productId: string;
-    color: string;
-    quantity: number;
-    price: number;
-    name: string;
-    imageUrl: string;
-    compositeId: string;
-}
-
-export interface ShippingInfo {
-    fullName: string;
-    phone: string;
-    address: string;
-    note: string;
-}
+import { type CheckoutItem } from "../../../types/cart.types";
+import { type ShippingInfo } from "../../../types/order.types";
 
 export const useCheckout = () => {
     const navigate = useNavigate();

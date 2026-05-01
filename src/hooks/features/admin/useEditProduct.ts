@@ -2,23 +2,10 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getProductById } from "../../../services/product.service";
 import { updateProductAdmin } from "../../../services/admin.service";
+import { type ProductVariant } from "../../../types/product.types";
+import { type EditApiProductData } from "../../../types/admin.types";
 
-export interface ApiProductVariant {
-    color: string;
-    quantity?: number;
-    image?: string;
-}
-
-export interface ApiProductData {
-    name?: string;
-    brand?: { name?: string };
-    category?: { name?: string };
-    importPrice?: number | string;
-    price?: number | string;
-    description?: string;
-    variants?: ApiProductVariant[];
-    specifications?: Record<string, string | number>;
-}
+export type ApiProductData = EditApiProductData;
 
 export const useEditProduct = () => {
     const { id } = useParams<{ id: string }>();
@@ -42,8 +29,8 @@ export const useEditProduct = () => {
                     name: data.name || "", brand: data.brand?.name || "", category: data.category?.name || "",
                     importPrice: data.importPrice?.toString() || "", price: data.price?.toString() || "",
                     description: data.description || "",
-                    variants: data.variants && data.variants.length > 0 ? data.variants.map((v: ApiProductVariant) => ({
-                        color: v.color, quantity: v.quantity?.toString() || "0", image: v.image || ""
+                    variants: data.variants && data.variants.length > 0 ? data.variants.map((v: ProductVariant) => ({
+                        color: v.color || "", quantity: v.quantity?.toString() || "0", image: v.image || ""
                     })) : [{ color: "", image: "", quantity: "" }],
                     specifications: data.specifications && Object.keys(data.specifications).length > 0 ? Object.entries(data.specifications).map(([label, value]) => ({
                         label, value: String(value)

@@ -1,11 +1,16 @@
 import { GoogleGenAI } from "@google/genai";
 
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+const GEMINI_CHAT_BOT_KEY = import.meta.env.VITE_GEMINI_CHAT_BOT_KEY;
 if (!GEMINI_API_KEY) {
     throw new Error("VITE_GEMINI_API_KEY is not defined in .env file");
 }
+if (!GEMINI_CHAT_BOT_KEY) {
+    throw new Error("VITE_GEMINI_CHAT_BOT_KEY is not defined in .env file");
+}
 
 const aiClient = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
+const chatClient = new GoogleGenAI({ apiKey: GEMINI_CHAT_BOT_KEY });
 
 export interface GeminiParsedResponse {
     name?: string;
@@ -52,7 +57,7 @@ Quy tắc bắt buộc:
 `;
 
     try {
-        const response = await aiClient.models.generateContent({
+        const response = await chatClient.models.generateContent({
             model: 'gemini-3-flash-preview',
             contents: systemPrompt,
             config: {
@@ -99,6 +104,8 @@ ${availableProducts.map((p: AIProduct) => `- ID: ${p._id || p.id}, Tên: ${p.nam
 Dựa vào danh sách trên, hãy chọn ra tối đa 4 sản phẩm là phụ kiện hoặc sản phẩm liên quan phù hợp và tương thích với sản phẩm tôi đang xem.
 Dựa vào các sản phẩm bán chạy mà bạn đã tìm ra hãy sắp xếp chúng từ bán chạy nhất đến không bán chạy nhất.
 Lưu ý: 
+Phụ kiện tương thích phải được ưu tiên đầu tiên, sau đó mới đến sản phẩm cùng loại. Ví dụ: nếu đang xem điện thoại thì nên ưu tiên đề xuất ốp lưng, sạc, tai nghe tương thích hơn là đề xuất một điện thoại khác.
+Sắp xếp theo mức độ liên quan và bán chạy, không sắp xếp theo giá cả.
 KHÔNG đề xuất sản phẩm không liên quan hoặc phụ kiện của hãng đối thủ (ví dụ: không đề xuất sạc Samsung cho iPhone).
 Chỉ trả về 1 object JSON có định dạng:
 {

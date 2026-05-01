@@ -1,29 +1,8 @@
 import { useState, useEffect } from "react";
 import { getAllOrdersAdmin, updateOrderStatusAdmin } from "../../../services/admin.service";
+import { type DisplayOrder, type RawOrder } from "../../../types/admin.types";
 
-export interface DisplayOrder {
-    id: string;
-    customer: string;
-    phone: string;
-    date: string;
-    total: number;
-    status: string;
-    payment: string;
-    paymentStatus: string;
-    cancelRequest: boolean;
-}
-
-export interface RawOrder {
-    _id: string;
-    user?: { fullname?: string; phone?: string };
-    createdAt: string;
-    totalAmount: number;
-    orderStatus: string;
-    paymentMethod: string;
-    paymentStatus: string;
-    cancelRequest?: boolean;
-    [key: string]: unknown; // Cho phép các thuộc tính khác khi xem chi tiết
-}
+export type { DisplayOrder, RawOrder };
 
 export const useOrderManagement = () => {
     const [orders, setOrders] = useState<DisplayOrder[]>([]);
@@ -34,17 +13,30 @@ export const useOrderManagement = () => {
     const [orderToCancel, setOrderToCancel] = useState<string | null>(null);
     const [alertMessage, setAlertMessage] = useState<{ text: string, type: 'success' | 'error' | 'warning' | 'info' } | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
     const [selectedOrderDetails, setSelectedOrderDetails] = useState<RawOrder | null>(null);
 
     const ITEMS_PER_PAGE = 5;
 
     useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm, statusFilter]);
+
+    useEffect(() => {
         const fetchOrders = async () => {
             setIsLoading(true);
             try {
-                const data = await getAllOrdersAdmin();
-                setRawOrders(data);
-                const formattedData: DisplayOrder[] = data.map((order: RawOrder) => ({
+                const filters: Record<string, string | number> = {};
+                if (searchTerm.trim() !== "") filters.search = searchTerm;
+                if (statusFilter !== "all") filters.status = statusFilter;
+                filters.page = currentPage;
+                filters.limit = ITEMS_PER_PAGE;
+
+                const data = await getAllOrdersAdmin(filters);
+                const rawList = data.orders || data;
+                setRawOrders(Array.isArray(rawList) ? rawList : []);
+
+                const formattedData: DisplayOrder[] = (Array.isArray(rawList) ? rawList : []).map((order: RawOrder) => ({
                     id: order._id,
                     customer: order.user?.fullname || 'N/A',
                     phone: order.user?.phone || 'N/A',
@@ -56,6 +48,7 @@ export const useOrderManagement = () => {
                     cancelRequest: order.cancelRequest || false,
                 }));
                 setOrders(formattedData);
+                if (data.totalPages) setTotalPages(data.totalPages);
             } catch (error: unknown) {
                 setAlertMessage({ text: (error as Error).message || "Không thể tải danh sách đơn hàng.", type: "error" });
             } finally {
@@ -63,32 +56,20 @@ export const useOrderManagement = () => {
             }
         };
         fetchOrders();
-    }, []);
+    }, [currentPage, searchTerm, statusFilter]);
 
     const formatCurrency = (amount: number) => {
         return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
     };
 
-    const filteredOrders = orders.filter(order => {
-        const matchSearch = order.id.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                            order.customer.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchStatus = statusFilter === "all" || 
-                            (statusFilter === "cancel_request" ? order.cancelRequest === true : order.status === statusFilter);
-        return matchSearch && matchStatus;
-    });
-
-    const totalPages = Math.ceil(filteredOrders.length / ITEMS_PER_PAGE);
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    const currentOrders = filteredOrders.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+    const currentOrders = orders;
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(e.target.value);
-        setCurrentPage(1);
     };
 
     const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         setStatusFilter(e.target.value);
-        setCurrentPage(1);
     };
 
     const updateOrderStatus = (id: string, status: string) => setOrders(prev => prev.map(o => o.id === id ? { ...o, status } : o));

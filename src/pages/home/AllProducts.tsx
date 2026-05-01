@@ -5,11 +5,31 @@ import "./Category.css"; // Tận dụng CSS của trang Category để dùng ch
 import { useAllProducts, type DisplayProduct } from "../../hooks/features/home/useAllProducts";
 
 function AllProducts() {
-    const { categories, brands, isNavigating, selectedCategories, selectedBrands, priceRange, setPriceRange, sortBy, setSortBy, isLoading, currentProductsToDisplay, handleCategoryChange, handleBrandChange, handleProductClick, currentPage, setCurrentPage, totalPages, getPaginationGroup } = useAllProducts();
+    const { 
+        categories, 
+        brands, 
+        selectedCategories, 
+        selectedBrands, 
+        priceRange, 
+        setPriceRange, 
+        sortBy, 
+        setSortBy, 
+        isLoading, 
+        currentProductsToDisplay, 
+        handleCategoryChange, 
+        handleBrandChange, 
+        currentPage, 
+        setCurrentPage, 
+        totalPages, 
+        getPaginationGroup
+    } = useAllProducts();
 
-    return (
-        <div className="category-page-container">
-            {isNavigating && <Loading fullScreen={true} />}
+    if (isLoading) {
+        return <Loading fullScreen={true} />;
+    }
+
+    const renderNavbar = () => {
+        return (
             <aside className="filter-sidebar">
                 <div className="filter-group">
                     <h3 className="filter-title">Danh Mục</h3>
@@ -51,6 +71,12 @@ function AllProducts() {
                     </div>
                 </div>
             </aside>
+        )
+    }
+
+    return (
+        <div className="category-page-container">
+            {renderNavbar()}
 
             <main className="product-list-main">
                 <div className="list-header">
@@ -58,9 +84,10 @@ function AllProducts() {
                     <div className="sort-container">
                         <label htmlFor="sort-by">Sắp xếp theo: </label>
                         <select id="sort-by" value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="sort-select">
-                            <option value="default">Mặc định</option>
+                            <option value="default">Mặc định (Mới nhất)</option>
                             <option value="price-asc">Giá: Tăng dần</option>
                             <option value="price-desc">Giá: Giảm dần</option>
+                            <option value="oldest">Cũ nhất</option>
                         </select>
                     </div>
                 </div>
@@ -70,7 +97,7 @@ function AllProducts() {
                         <p>Đang tải dữ liệu...</p>
                     ) : currentProductsToDisplay.length > 0 ? (
                         currentProductsToDisplay.map((product: DisplayProduct) => (
-                        <Link to={`/product/${product.id}`} key={`product-${product.id}`} style={{ textDecoration: 'none', color: 'inherit' }} onClick={(e) => handleProductClick(e, product.id)}>
+                        <Link to={`/product/${product.id}`} key={`product-${product.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                             <ProductCard 
                                 id={product.id} 
                                 name={product.name} 

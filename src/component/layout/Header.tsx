@@ -25,11 +25,7 @@ function Header() {
     // Số lượng đầu mục sản phẩm trong giỏ hàng
     const [cartCount, setCartCount] = useState(0);
 
-    // Giả lập số lượng thông báo (ví dụ: sản phẩm trong giỏ hàng giảm giá)
-    // const [notificationCount] = useState(6);
-
     const [searchValue, setSearchValue] = useState("");
-    const [debouncedValue, setDebouncedValue] = useState("");
     const [isLoading, setIsLoading] = useState(false);
 
     const handSubmitSearch = (event: React.FormEvent<HTMLFormElement>) => {
@@ -86,20 +82,6 @@ function Header() {
             window.removeEventListener('cartUpdated', fetchCartCount);
         };
     }, [isLoggedIn]);
-
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setDebouncedValue(searchValue);
-        }, 500);
-
-        return () => clearTimeout(timer);
-    }, [searchValue]);
-
-    useEffect(() => {
-        if (debouncedValue) {
-            //fetchAPI
-        }
-    }, [debouncedValue]);
 
     useEffect(() => {
         const handleUpdateAvatar = () => {

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { type InfoErrorRes } from "../../../services/user.service";
+import { deleteAccount, type InfoErrorRes } from "../../../services/user.service";
 import { useUserData } from "../../queries/useUserData";
 
 export const useInfoUser = () => {
@@ -13,12 +13,16 @@ export const useInfoUser = () => {
         setShowDeleteAlert(true);
     };
 
-    const confirmDelete = () => {
-        // Giả lập hành động xóa tài khoản (hoặc gọi API xóa thực tế tại đây)
-        localStorage.removeItem("token");
-        setShowDeleteAlert(false);
-        navigate("/");
-        window.location.reload(); 
+    const confirmDelete = async () => {
+        try {
+            await deleteAccount();
+            localStorage.removeItem("token");
+            setShowDeleteAlert(false);
+            navigate("/");
+            window.location.reload();
+        } catch (error) {
+            console.error("Error deleting account:", error);
+        } 
     };
 
     const cancelDelete = () => {

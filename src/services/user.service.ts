@@ -137,3 +137,39 @@ export const changePassword = async (data: ChangePasswordReq) => {
         }
     }
 };
+
+export const deleteAccount = async () => {
+    try {
+        const res = await axios.put(
+            `${API_BASE_URL}/user/delete-account`,
+            {}, 
+            {
+                headers: {
+                    'Authorization': `${localStorage.getItem('token')}`
+                }
+            }
+        );
+        return res.data;
+    } catch (error) {
+        if (axios.isAxiosError(error)) {
+            if (!error.response) {
+                throw {
+                    status: 500,
+                    message: "Lỗi kết nối máy chủ"
+                };
+            } else {
+                throw {
+                    status: error.response?.status,
+                    message: error.response?.data.message
+                };
+            }  
+        } else {
+            throw {
+                status: 500,
+                message: "Lỗi hệ thống không xác định"
+            };
+        }
+    }
+}
+
+    

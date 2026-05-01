@@ -5,47 +5,8 @@ import { getReviewsByProduct, createReview } from "../../../services/review.serv
 import { getUserId } from "../../../utils/token.util";
 import { addToCart } from "../../../services/cart.service";
 import { getRelatedProductsFromAI } from "../../../services/ai.service";
-
-export interface ApiProductVariant {
-    color: string;
-    image?: string;
-    quantity?: number;
-}
-
-export interface ApiProduct {
-    _id: string;
-    name: string;
-    price: number;
-    description?: string;
-    variants?: ApiProductVariant[];
-    specifications?: Record<string, string | number>;
-    rating?: number;
-    reviewCount?: number;
-    ratingBreakdown?: { star1: number; star2: number; star3: number; star4: number; star5: number };
-}
-
-export interface ReviewUser {
-    _id: string;
-    fullname?: string;
-}
-
-export interface Review {
-    _id?: string;
-    user?: ReviewUser;
-    rating: number;
-    comment?: string;
-    createdAt: string | Date;
-}
-
-export interface RelatedProduct {
-    id: string;
-    name: string;
-    price: number;
-    imageUrl: string;
-    rating: number;
-    reviewCount: number;
-    isOutOfStock: boolean;
-}
+import { type ApiProduct, type ProductVariant, type RelatedProduct } from "../../../types/product.types";
+import { type Review } from "../../../types/review.types";
 
 export const useProductDetail = () => {
     const { id } = useParams<{ id: string }>();
@@ -79,7 +40,7 @@ export const useProductDetail = () => {
             try {
                 const [productData, reviewsData] = await Promise.all([getProductById(id), getReviewsByProduct(id)]);
                 setProduct(productData); setReviews(reviewsData);
-                const uniqueVariantImages = Array.from(new Set(productData.variants?.map((v: ApiProductVariant) => v.image).filter(Boolean))) as string[];
+                const uniqueVariantImages = Array.from(new Set(productData.variants?.map((v: ProductVariant) => v.image).filter(Boolean))) as string[];
                 const productImages = uniqueVariantImages.length > 0 ? uniqueVariantImages : ["https://via.placeholder.com/500?text=No+Image"];
                 setImages(productImages); setActiveImage(productImages[0]);
                 if (productData.variants && productData.variants.length > 0) setSelectedColor(productData.variants[0].color);
@@ -87,12 +48,15 @@ export const useProductDetail = () => {
             } catch (error) {
                 console.error("Lỗi khi tải chi tiết sản phẩm:", error);
                 setAlertMessage({ text: "Không thể tải thông tin sản phẩm. Vui lòng thử lại sau.", type: 'error' });
-            } finally { setIsLoading(false); }
+            } finally { 
+                setIsLoading(false); 
+            }
         };
         fetchProductDetail();
         window.scrollTo(0, 0);
     }, [id]);
 
+    // Hàm lấy sản phẩm liên quan từ AI
     const fetchRelatedProducts = async (currentProduct: ApiProduct) => {
         setIsRelatedLoading(true);
         try {
@@ -102,7 +66,7 @@ export const useProductDetail = () => {
             const recommendedIds = await getRelatedProductsFromAI(currentProduct, availableProducts);
             const related = availableProducts.filter((p: ApiProduct) => recommendedIds.includes(p._id)).map((p: ApiProduct) => ({
                 id: p._id, name: p.name, price: p.price, imageUrl: p.variants?.[0]?.image || 'https://via.placeholder.com/300?text=No+Image',
-                rating: p.rating || 0, reviewCount: p.reviewCount || 0, isOutOfStock: (p.variants?.reduce((sum: number, v: ApiProductVariant) => sum + (v.quantity || 0), 0) || 0) <= 0
+                rating: p.rating || 0, reviewCount: p.reviewCount || 0, isOutOfStock: (p.variants?.reduce((sum: number, v: ProductVariant) => sum + (v.quantity || 0), 0) || 0) <= 0
             }));
             setRelatedProducts(related);
         } catch (error) { console.error("Lỗi khi lấy sản phẩm liên quan từ AI:", error); } finally { setIsRelatedLoading(false); }
@@ -134,7 +98,7 @@ export const useProductDetail = () => {
 
     const totalReviews = Number(product?.reviewCount) || 0;
     const ratingBreakdown = product?.ratingBreakdown || { star1: 0, star2: 0, star3: 0, star4: 0, star5: 0 };
-    const selectedVariant = product?.variants?.find((v: ApiProductVariant) => v.color === selectedColor);
+    const selectedVariant = product?.variants?.find((v: ProductVariant) => v.color === selectedColor);
     const availableStock = selectedVariant?.quantity || 0;
     const specsArray = product?.specifications ? Object.entries(product.specifications).map(([label, value]) => ({ label, value: String(value) })) : [];
 

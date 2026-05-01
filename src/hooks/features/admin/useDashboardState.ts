@@ -1,36 +1,6 @@
 import { useState, useEffect } from 'react';
-import { getAllOrdersAdmin } from "../../../services/admin.service";
-import { getAllProducts } from "../../../services/product.service";
-
-export interface RevenueData {
-    name: string;
-    revenue: number;
-    cost: number;
-    profit: number;
-}
-
-export interface OrderStatusData {
-    name: string;
-    value: number;
-}
-
-export interface DashboardProduct {
-    _id?: string;
-    id?: string;
-    importPrice?: string | number;
-}
-
-export interface DashboardOrderItem {
-    product?: DashboardProduct | string;
-    quantity?: number | string;
-}
-
-export interface DashboardOrder {
-    orderStatus?: string;
-    createdAt?: string | Date;
-    totalAmount?: number | string;
-    items?: DashboardOrderItem[];
-}
+import { getAllOrdersAdmin, getAllProductsAdmin } from "../../../services/admin.service";
+import { type RevenueData, type OrderStatusData, type DashboardProduct, type DashboardOrderItem, type DashboardOrder } from "../../../types/admin.types";
 
 export const useDashboardState = () => {
     const [timeFilter, setTimeFilter] = useState<'month' | 'quarter' | 'year'>('month');
@@ -49,7 +19,7 @@ export const useDashboardState = () => {
             try {
                 const [orders, products] = await Promise.all([
                     getAllOrdersAdmin(),
-                    getAllProducts()
+                    getAllProductsAdmin()
                 ]);
 
                 // Tạo bản đồ giá nhập của sản phẩm để tính lợi nhuận

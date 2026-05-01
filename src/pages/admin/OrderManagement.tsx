@@ -82,7 +82,7 @@ function OrderManagement() {
                         {isLoading ? (
                             <tr>
                                 <td colSpan={7} style={{ padding: '40px 0' }}>
-                                    <Loading fullScreen={false} text="Đang tải dữ liệu hệ thống..." />
+                                    <Loading fullScreen={false} />
                                 </td>
                             </tr>
                         ) : currentOrders.length > 0 ? (

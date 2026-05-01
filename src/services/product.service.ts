@@ -1,14 +1,7 @@
 import axios from "axios";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-// ==================================================================
-// INTERFACES (Định nghĩa cấu trúc dữ liệu)
-// ==================================================================
-
-/**
- * @description Dữ liệu gửi lên khi thêm sản phẩm (khớp với form AddProduct.tsx)
- */
 export interface AddProductPayload {
     name: string;
     brand: string;
@@ -20,17 +13,11 @@ export interface AddProductPayload {
     specifications: Record<string, string>;
 }
 
-
-// ==================================================================
-// SERVICES (Các hàm gọi API)
-// ==================================================================
-
-/**
- * @description Lấy danh sách tất cả sản phẩm (route public)
- */
-export const getAllProducts = async () => {
+export const getAllProducts = async (filters = {}) => {
     try {
-        const res = await axios.get(`${API_BASE_URL}/products`);
+        const res = await axios.get(`${API_BASE_URL}/products`, {
+            params: filters,
+        });
         return res.data;
     } catch (error) {
         if (axios.isAxiosError(error)) {
@@ -48,10 +35,6 @@ export const getAllProducts = async () => {
     }
 };
 
-/**
- * @description Lấy chi tiết một sản phẩm bằng ID (route public)
- * @param productId ID của sản phẩm cần lấy
- */
 export const getProductById = async (productId: string) => {
     try {
         const res = await axios.get(`${API_BASE_URL}/products/${productId}`);
@@ -68,9 +51,6 @@ export const getProductById = async (productId: string) => {
     }
 };
 
-/**
- * @description Lấy danh sách sản phẩm mới (trong vòng 14 ngày, giới hạn 8 sản phẩm)
- */
 export const getNewProducts = async () => {
     try {
         const res = await axios.get(`${API_BASE_URL}/products/new`);
@@ -82,6 +62,25 @@ export const getNewProducts = async () => {
             }
             if (error.response.status === 404) {
                 return []; // Trả về mảng rỗng nếu không có sản phẩm mới
+            }
+            throw { status: error.response?.status, message: error.response?.data.message };
+        } else {
+            throw { status: 500, message: "Lỗi hệ thống không xác định" };
+        }
+    }
+};
+
+export const getProductsSaleTop = async () => {
+    try {
+        const res = await axios.get(`${API_BASE_URL}/products/sale-top`);
+        return res.data;
+    } catch (error) {
+        if (axios.isAxiosError(error)) {
+            if (!error.response) {
+                throw { status: 500, message: "Lỗi kết nối máy chủ" };
+            }
+            if (error.response.status === 404) {
+                return []; // Trả về mảng rỗng nếu không có sản phẩm bán chạy
             }
             throw { status: error.response?.status, message: error.response?.data.message };
         } else {

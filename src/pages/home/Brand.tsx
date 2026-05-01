@@ -5,11 +5,14 @@ import "./Brand.css";
 import { useBrand } from "../../hooks/features/home/useBrand";
 
 function Brand() {
-    const { brands, isNavigating, selectedBrands, priceRange, setPriceRange, sortBy, setSortBy, isLoading, currentProductsToDisplay, handleBrandChange, handleProductClick, currentPage, setCurrentPage, totalPages, getPaginationGroup } = useBrand();
+    const { brands, selectedBrands, priceRange, setPriceRange, sortBy, setSortBy, isLoading, currentProductsToDisplay, handleBrandChange, currentPage, setCurrentPage, totalPages, getPaginationGroup } = useBrand();
 
-    return (
-        <div className="brand-page-container">
-            {isNavigating && <Loading fullScreen={true} />}
+    if (isLoading) {
+        return <Loading fullScreen={true} />;
+    }
+
+    const renderNavbar = () => {
+        return (
             <aside className="filter-sidebar">
                 <div className="filter-group">
                     <h3 className="filter-title">Thương Hiệu Nổi Bật</h3>
@@ -78,6 +81,11 @@ function Brand() {
                     </div>
                 </div>
             </aside>
+        )
+    }
+    return (
+        <div className="brand-page-container">
+            {renderNavbar()}
 
             <main className="product-list-main">
                 <div className="list-header">
@@ -91,9 +99,10 @@ function Brand() {
                             onChange={(e) => setSortBy(e.target.value)}
                             className="sort-select"
                         >
-                            <option value="default">Mặc định</option>
+                            <option value="default">Mặc định (Mới nhất)</option>
                             <option value="price-asc">Giá: Tăng dần</option>
                             <option value="price-desc">Giá: Giảm dần</option>
+                            <option value="oldest">Cũ nhất</option>
                         </select>
                     </div>
                 </div>
@@ -103,7 +112,7 @@ function Brand() {
                         <p>Đang tải dữ liệu...</p>
                     ) : currentProductsToDisplay.length > 0 ? (
                         currentProductsToDisplay.map((product) => (
-                            <Link to={`/product/${product.id}`} key={product.id} style={{ textDecoration: 'none', color: 'inherit' }} onClick={(e) => handleProductClick(e, product.id)}>
+                            <Link to={`/product/${product.id}`} key={product.id} style={{ textDecoration: 'none', color: 'inherit' }}>
                                 <ProductCard
                                     id={product.id}
                                     name={product.name}

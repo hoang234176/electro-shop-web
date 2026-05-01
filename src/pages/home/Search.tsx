@@ -5,12 +5,14 @@ import "./Search.css";
 import { useSearch } from "../../hooks/features/home/useSearch";
 
 function Search() {
-    const { searchQuery, isNavigating, priceRange, setPriceRange, sortBy, setSortBy, isLoading, currentProductsToDisplay, handleProductClick, currentPage, setCurrentPage, totalPages, getPaginationGroup } = useSearch();
+    const { searchQuery, priceRange, setPriceRange, sortBy, setSortBy, isLoading, currentProductsToDisplay, currentPage, setCurrentPage, totalPages, getPaginationGroup } = useSearch();
 
-    return (
-        <div className="search-page-container">
-            {isNavigating && <Loading fullScreen={true} />}
-            {/* Sidebar Bộ lọc */}
+    if (isLoading) {
+        return <Loading fullScreen={true} />;
+    }
+
+    const renderNavbar = () => {
+        return (
             <aside className="filter-sidebar">
                 <div className="filter-group">
                     <h3 className="filter-title">Khoảng Giá</h3>
@@ -64,6 +66,12 @@ function Search() {
                     </div>
                 </div>
             </aside>
+        )
+    }
+
+    return (
+        <div className="search-page-container">
+            {renderNavbar()}
 
             {/* Vùng hiển thị kết quả chính */}
             <main className="product-list-main">
@@ -83,9 +91,10 @@ function Search() {
                             onChange={(e) => setSortBy(e.target.value)}
                             className="sort-select"
                         >
-                            <option value="default">Mặc định</option>
+                            <option value="default">Mới nhất</option>
                             <option value="price-asc">Giá: Tăng dần</option>
                             <option value="price-desc">Giá: Giảm dần</option>
+                            <option value="oldest">Cũ nhất</option>
                         </select>
                     </div>
                 </div>
@@ -95,7 +104,7 @@ function Search() {
                         <p>Đang tải dữ liệu...</p>
                     ) : currentProductsToDisplay.length > 0 ? (
                         currentProductsToDisplay.map((product) => (
-                            <Link to={`/product/${product.id}`} key={product.id} style={{ textDecoration: 'none', color: 'inherit' }} onClick={(e) => handleProductClick(e, product.id)}>
+                            <Link to={`/product/${product.id}`} key={product.id} style={{ textDecoration: 'none', color: 'inherit' }} >
                                 <ProductCard
                                     id={product.id}
                                     name={product.name}

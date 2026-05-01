@@ -5,7 +5,9 @@ import ReviewSummary from "../../component/ui/ReviewSummary";
 import ProductCard from "../../component/ui/ProductCard";
 import "./ProductDetail.css";
 import { LuSparkles } from "react-icons/lu";
-import { useProductDetail, type ApiProductVariant } from "../../hooks/features/product/useProductDetail";
+import { useProductDetail } from "../../hooks/features/product/useProductDetail";
+import Loading from "../../component/ui/Loading";
+import { type  ProductVariant} from "../../types/product.types";
 
 function ProductDetail() {
     const {
@@ -46,15 +48,30 @@ function ProductDetail() {
     };
 
     if (isLoading) {
-        return <div className="product-detail-container" style={{ textAlign: 'center', padding: '50px' }}><h3>Đang tải thông tin sản phẩm...</h3></div>;
+        return <Loading fullScreen={true} />;
     }
 
     if (!product) {
-        return <div className="product-detail-container" style={{ textAlign: 'center', padding: '50px' }}><h3>Không tìm thấy sản phẩm.</h3><Button variant="primary" width="150px" height="40px" onClick={() => navigate('/')}>Về trang chủ</Button></div>;
+        return <>
+            <div className="product-detail-container" style={{ textAlign: 'center', padding: '50px' }}>
+                <h3>Không tìm thấy sản phẩm.</h3>
+                <Button
+                    variant="primary"
+                    width="150px"
+                    height="40px"
+                    onClick={() => navigate('/')}
+                >
+                    Về trang chủ
+                </Button>
+            </div>;
+        </>
     }
 
     return (
         <div className="product-detail-container">
+
+            {/* {isLoading && <Loading fullScreen={true} />} */}
+
             <Alert
                 show={!!alertMessage}
                 title={getAlertTitle()}
@@ -114,12 +131,12 @@ function ProductDetail() {
                     <div className="product-variants">
                         <label>Phiên bản:</label>
                         <div className="variant-buttons">
-                            {product.variants?.map((variant: ApiProductVariant, index: number) => (
+                            {product.variants?.map((variant: ProductVariant, index: number) => (
                                 <button
                                     key={index}
                                     className={`variant-btn ${selectedColor === variant.color ? 'active' : ''}`}
                                     onClick={() => {
-                                        setSelectedColor(variant.color);
+                                        setSelectedColor(variant.color || "");
                                         if (variant.image) setActiveImage(variant.image);
                                     }}
                                 >
@@ -153,7 +170,33 @@ function ProductDetail() {
                 </div>
             </div>
 
-            {/* --- 2. THÔNG SỐ KỸ THUẬT --- */}
+            {/* --- 2. SẢN PHẨM ĐỀ XUẤT ĐI KÈM --- */}
+            <div className="related-products-section" style={{ marginTop: '40px' }}>
+                <h2 className="section-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <LuSparkles style={{ color: '#3b82f6' }} /> AI ĐỀ XUẤT PHỤ KIỆN ĐI KÈM
+                </h2>
+                {isRelatedLoading ? (
+                    <p style={{ textAlign: 'center', color: '#666', padding: '20px' }}>🤖 AI đang phân tích và tìm các phụ kiện phù hợp nhất cho bạn...</p>
+                ) : relatedProducts.length > 0 ? (
+                    <div className="product-grid">
+                        {relatedProducts.map(product => (
+                            <Link to={`/product/${product.id}`} key={`related-${product.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                                <ProductCard
+                                    id={product.id}
+                                    name={product.name}
+                                    price={product.price}
+                                    imageUrl={product.imageUrl}
+                                    rating={product.rating}
+                                    reviewCount={product.reviewCount}
+                                    isOutOfStock={product.isOutOfStock}
+                                />
+                            </Link>
+                        ))}
+                    </div>
+                ) : null}
+            </div>
+
+            {/* --- 3. THÔNG SỐ KỸ THUẬT --- */}
             <div className="product-specs-section">
                 <h2 className="section-title">Thông số kỹ thuật</h2>
                 <table className="specs-table">
@@ -168,7 +211,7 @@ function ProductDetail() {
                 </table>
             </div>
 
-            {/* --- 3. NHẬN XÉT SẢN PHẨM --- */}
+            {/* --- 4. NHẬN XÉT SẢN PHẨM --- */}
             <div className="product-reviews-section">
                 <h2 className="section-title">Đánh giá & Nhận xét</h2>
 
@@ -223,32 +266,6 @@ function ProductDetail() {
                         <p>Chưa có nhận xét nào cho sản phẩm này. Hãy là người đầu tiên để lại nhận xét!</p>
                     )}
                 </div>
-            </div>
-
-            {/* --- 4. SẢN PHẨM ĐỀ XUẤT ĐI KÈM --- */}
-            <div className="related-products-section" style={{ marginTop: '40px' }}>
-                <h2 className="section-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <LuSparkles style={{ color: '#3b82f6' }} /> AI ĐỀ XUẤT PHỤ KIỆN ĐI KÈM
-                </h2>
-                {isRelatedLoading ? (
-                    <p style={{ textAlign: 'center', color: '#666', padding: '20px' }}>🤖 AI đang phân tích và tìm các phụ kiện phù hợp nhất cho bạn...</p>
-                ) : relatedProducts.length > 0 ? (
-                    <div className="product-grid">
-                        {relatedProducts.map(product => (
-                            <Link to={`/product/${product.id}`} key={`related-${product.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                                <ProductCard
-                                    id={product.id}
-                                    name={product.name}
-                                    price={product.price}
-                                    imageUrl={product.imageUrl}
-                                    rating={product.rating}
-                                    reviewCount={product.reviewCount}
-                                    isOutOfStock={product.isOutOfStock}
-                                />
-                            </Link>
-                        ))}
-                    </div>
-                ) : null}
             </div>
         </div>
     );

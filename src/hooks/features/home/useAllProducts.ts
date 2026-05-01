@@ -1,40 +1,14 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAllProducts } from "../../../services/product.service";
-
-export interface ProductVariant {
-    quantity?: number;
-    image?: string;
-}
-
-export interface ApiProduct {
-    _id: string;
-    name: string;
-    price: number;
-    brand?: { name?: string } | string;
-    category?: { name?: string } | string;
-    variants?: ProductVariant[];
-    rating?: number;
-    reviewCount?: number;
-}
-
-export interface DisplayProduct {
-    id: string;
-    brand: string;
-    category: string;
-    name: string;
-    price: number;
-    imageUrl: string;
-    rating: number;
-    reviewCount: number;
-    isOutOfStock: boolean;
-}
+import { type ApiProduct, type DisplayProduct, type ProductVariant } from "../../../types/product.types";
 
 export const useAllProducts = () => {
     const categories = ["Điện thoại", "Laptop", "Tai nghe", "Đồng hồ", "Phụ kiện", "Màn hình"];
     const brands = ["Apple", "Samsung", "Sony", "Dell", "LG", "Google"];
+
     const navigate = useNavigate();
-    const [isNavigating, setIsNavigating] = useState(false);
+
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
     const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
     const [priceRange, setPriceRange] = useState<string>("all");
@@ -44,6 +18,7 @@ export const useAllProducts = () => {
     const [isLoading, setIsLoading] = useState(true);
 
     const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
     const ITEMS_PER_PAGE = 9;
 
     useEffect(() => {
@@ -54,8 +29,21 @@ export const useAllProducts = () => {
         const fetchProducts = async () => {
             setIsLoading(true);
             try {
-                const data = await getAllProducts();
-                const formattedData: DisplayProduct[] = data.map((p: ApiProduct) => {
+                // Khởi tạo object chứa các điều kiện lọc hiện tại để gửi lên API
+                const filters: Record<string, string | number> = {};
+                if (selectedCategories.length > 0) filters.category = selectedCategories.join(',');
+                if (selectedBrands.length > 0) filters.brand = selectedBrands.join(',');
+                if (priceRange !== "all") filters.priceRange = priceRange;
+                if (sortBy !== "default") filters.sortBy = sortBy;
+                filters.page = currentPage;
+                filters.limit = ITEMS_PER_PAGE;
+
+                const data = await getAllProducts(filters);
+                
+                // Lấy mảng products từ kết quả API mới (kèm fallback nếu API cũ)
+                const productsList = data.products || data;
+                
+                const formattedData: DisplayProduct[] = productsList.map((p: ApiProduct) => {
                     const brandName = typeof p.brand === 'object' ? p.brand?.name : p.brand;
                     const categoryName = typeof p.category === 'object' ? p.category?.name : p.category;
                     return {
@@ -66,42 +54,26 @@ export const useAllProducts = () => {
                     };
                 });
                 setAllProducts(formattedData);
+                
+                // Lưu tổng số trang từ Backend trả về
+                if (data.totalPages) {
+                    setTotalPages(data.totalPages);
+                }
             } catch (error) {
                 console.error("Lỗi khi tải sản phẩm:", error);
+                navigate('/error500');
             } finally {
                 setIsLoading(false);
             }
         };
         fetchProducts();
-    }, []);
-
-    const filteredProducts = useMemo(() => {
-        let products = [...allProducts];
-        if (selectedCategories.length > 0) products = products.filter((p) => selectedCategories.includes(p.category));
-        if (selectedBrands.length > 0) products = products.filter((p) => selectedBrands.includes(p.brand));
-
-        products = products.filter((p) => {
-            switch (priceRange) {
-                case "under-10m": return p.price < 10000000;
-                case "10m-20m": return p.price >= 10000000 && p.price <= 20000000;
-                case "over-20m": return p.price > 20000000;
-                default: return true;
-            }
-        });
-
-        return [...products].sort((a, b) => {
-            switch (sortBy) { case "price-asc": return a.price - b.price; case "price-desc": return b.price - a.price; default: return a.id.localeCompare(b.id); }
-        });
-    }, [allProducts, selectedCategories, selectedBrands, priceRange, sortBy]);
+    // Khai báo các dependencies: mỗi khi các biến này thay đổi, useEffect sẽ chạy lại và fetch API mới
+    }, [selectedCategories, selectedBrands, priceRange, sortBy, currentPage, navigate]);
 
     const handleCategoryChange = (category: string) => setSelectedCategories((prev) => prev.includes(category) ? prev.filter((c) => c !== category) : [...prev, category]);
     const handleBrandChange = (brand: string) => setSelectedBrands((prev) => prev.includes(brand) ? prev.filter((b) => b !== brand) : [...prev, brand]);
 
-    const handleProductClick = (e: React.MouseEvent, productId: string) => { e.preventDefault(); setIsNavigating(true); setTimeout(() => { setIsNavigating(false); navigate(`/product/${productId}`); }, 800); };
-
-    const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    const currentProductsToDisplay = filteredProducts.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+    const currentProductsToDisplay = allProducts;
 
     const getPaginationGroup = () => {
         const pages = [];
@@ -115,5 +87,22 @@ export const useAllProducts = () => {
         return pages;
     };
 
-    return { categories, brands, isNavigating, selectedCategories, selectedBrands, priceRange, setPriceRange, sortBy, setSortBy, isLoading, currentProductsToDisplay, handleCategoryChange, handleBrandChange, handleProductClick, currentPage, setCurrentPage, totalPages, getPaginationGroup };
+    return { 
+        categories, 
+        brands, 
+        selectedCategories, 
+        selectedBrands, 
+        priceRange, 
+        setPriceRange, 
+        sortBy, 
+        setSortBy, 
+        isLoading, 
+        currentProductsToDisplay, 
+        handleCategoryChange, 
+        handleBrandChange, 
+        currentPage, 
+        setCurrentPage, 
+        totalPages, 
+        getPaginationGroup 
+    };
 };

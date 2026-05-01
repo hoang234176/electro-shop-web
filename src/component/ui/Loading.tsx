@@ -3,11 +3,10 @@ import './Loading.css';
 
 interface LoadingProps {
     fullScreen?: boolean;
-    text?: string;
     progress?: number; // Cho phép truyền số % thực tế nếu có
 }
 
-const Loading: React.FC<LoadingProps> = ({ fullScreen = false, text = "Đang xử lý...", progress }) => {
+const Loading: React.FC<LoadingProps> = ({ fullScreen = false, progress }) => {
     const [simulatedProgress, setSimulatedProgress] = useState(0);
 
     // Mô phỏng thanh tiến trình chạy dần từ 0 đến 90%
@@ -32,7 +31,6 @@ const Loading: React.FC<LoadingProps> = ({ fullScreen = false, text = "Đang x�
                 <div className="loading-top-bar">
                     <div className="loading-progress-bar" style={{ width: `${currentProgress}%` }}></div>
                 </div>
-                {text && <div className="loading-text">{text}</div>}
             </div>
         );
     }
@@ -40,7 +38,6 @@ const Loading: React.FC<LoadingProps> = ({ fullScreen = false, text = "Đang x�
     return (
         <div className="loading-container">
             <div className="loading-spinner"></div>
-            {text && <div className="loading-text">{text}</div>}
         </div>
     );
 };

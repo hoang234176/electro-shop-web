@@ -24,11 +24,13 @@ function Dashboard() {
         return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
     };
 
+    if (isLoading) {
+        return <Loading fullScreen={true} />;
+    }
+
+
     return (
         <div className="admin-page-container dashboard-wrapper">
-            {/* Loading che toàn màn hình khi đang lấy số liệu thống kê */}
-            {isLoading && <Loading fullScreen={true} text="Đang phân tích số liệu thống kê..." />}
-
             <div className="admin-page-header" style={{ marginBottom: 0 }}>
                 <h1 className="admin-page-title">Bảng điều khiển Tổng quan</h1>
             </div>

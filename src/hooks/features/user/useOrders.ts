@@ -4,56 +4,10 @@ import { getUserOrders, cancelOrder } from "../../../services/order.service";
 import { type AlertProps } from "../../../component/ui/Alert";
 import { FiClock, FiTruck, FiCheckCircle, FiXCircle } from "react-icons/fi";
 import React from "react";
+import { type OrderVariant, type OrderProduct, type OrderItem, type ApiOrder, type DisplayOrderItem, type UserDisplayOrder } from "../../../types/order.types";
 
-export interface OrderVariant {
-    color: string;
-    image?: string;
-}
-
-export interface OrderProduct {
-    _id?: string;
-    name?: string;
-    variants?: OrderVariant[];
-}
-
-export interface OrderItem {
-    _id?: string;
-    product?: OrderProduct;
-    color?: string;
-    price: number;
-    quantity: number;
-}
-
-export interface ApiOrder {
-    _id: string;
-    createdAt: string | Date;
-    totalAmount: number;
-    orderStatus: string;
-    paymentMethod: string;
-    paymentStatus: string;
-    cancelRequest?: boolean;
-    items: OrderItem[];
-}
-
-export interface DisplayOrderItem {
-    id: string;
-    name: string;
-    price: number;
-    quantity: number;
-    imageUrl: string;
-}
-
-export interface DisplayOrder {
-    id: string;
-    displayId: string;
-    status: string;
-    date: string;
-    total: number;
-    paymentMethod: string;
-    paymentStatus: string;
-    cancelRequest: boolean;
-    items: DisplayOrderItem[];
-}
+export type DisplayOrder = UserDisplayOrder;
+export type { OrderVariant, OrderProduct, OrderItem, ApiOrder, DisplayOrderItem };
 
 export const useOrders = () => {
     const location = useLocation();

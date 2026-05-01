@@ -11,9 +11,11 @@ interface ProductCardProps {
     rating?: number;
     reviewCount?: number;
     isOutOfStock?: boolean;
+    type?: "new" | "selling" | "default";
+    discountPercent?: number;
 }
 
-function ProductCard({ id, name, price, imageUrl, rating = 0, reviewCount = 0, isOutOfStock }: ProductCardProps) {
+function ProductCard({ id, name, price, imageUrl, rating = 0, reviewCount = 0, isOutOfStock, type, discountPercent = 10 }: ProductCardProps) {
     const navigate = useNavigate();
 
     // 1. Hàm format tiền Việt Nam
@@ -58,6 +60,16 @@ function ProductCard({ id, name, price, imageUrl, rating = 0, reviewCount = 0, i
         <div className="product-card">
             {/* Khu vực 1: Ảnh sản phẩm */}
             <div className="product-image-container">
+                {type === 'new' && (
+                    <div className="badge-sawtooth badge-new">
+                        <span>NEW</span>
+                    </div>
+                )}
+                {type === 'selling' && (
+                    <div className="badge-sawtooth badge-selling">
+                        <span>-{discountPercent}%</span>
+                    </div>
+                )}
                 <img src={imageUrl} alt={name} className="product-image" />
             </div>
 

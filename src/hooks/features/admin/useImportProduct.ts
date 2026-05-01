@@ -2,36 +2,10 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getProductById } from "../../../services/product.service";
 import { importProductAdmin } from "../../../services/admin.service";
+import { type ProductVariant } from "../../../types/product.types";
+import { type ExistingVariant, type NewVariant, type ProductBaseInfo } from "../../../types/admin.types";
 
-export interface ExistingVariant {
-    color: string;
-    currentQuantity: number;
-    addQuantity: string;
-    image: string | File;
-    isOldImage: boolean;
-}
-
-export interface NewVariant {
-    color: string;
-    quantity: string;
-    image: File | null;
-}
-
-export interface ApiProductVariant {
-    color: string;
-    quantity: number;
-    image?: string;
-}
-
-export interface ProductBaseInfo {
-    name: string;
-    brand: string;
-    category: string;
-    importPrice: number;
-    price: number;
-    description: string;
-    specifications: Record<string, string | number>;
-}
+export type { ExistingVariant, NewVariant, ProductBaseInfo };
 
 export const useImportProduct = () => {
     const { id } = useParams<{ id: string }>();
@@ -58,8 +32,8 @@ export const useImportProduct = () => {
                     specifications: data.specifications || {}
                 });
                 if (data.variants && data.variants.length > 0) {
-                    setExistingVariants(data.variants.map((v: ApiProductVariant) => ({
-                        color: v.color, currentQuantity: v.quantity, addQuantity: "", image: v.image || "", isOldImage: true
+                    setExistingVariants(data.variants.map((v: ProductVariant) => ({
+                        color: v.color || "", currentQuantity: v.quantity || 0, addQuantity: "", image: v.image || "", isOldImage: true
                     })));
                 }
             } catch {

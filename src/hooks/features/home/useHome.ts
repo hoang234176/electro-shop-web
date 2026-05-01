@@ -1,51 +1,36 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getAllProducts, getNewProducts } from "../../../services/product.service";
+import { getProductsSaleTop, getNewProducts } from "../../../services/product.service";
 import { FiSmartphone, FiMonitor, FiHeadphones, FiWatch, FiTv } from 'react-icons/fi';
 import { TbPlug } from 'react-icons/tb';
-
-export interface Product {
-    _id: string;
-    name: string;
-    price: number;
-    variants: { image?: string; quantity?: number }[];
-    rating?: number;
-    reviewCount?: number;
-}
+import { type ProductCardItem } from "../../../types/product.types";
 
 export const useHome = () => {
-    const navigate = useNavigate();
-    const [isNavigating, setIsNavigating] = useState(false);
+    const navigate = useNavigate(); //Khai báo navigate để điều hướng 
 
-    const [newProducts, setNewProducts] = useState<Product[]>([]);
-    const [allProducts, setAllProducts] = useState<Product[]>([]);
+    const [newProducts, setNewProducts] = useState<ProductCardItem[]>([]);
+    const [productsSaleTop, setProductsSaleTop] = useState<ProductCardItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchHomeData = async () => {
             setIsLoading(true);
-            setError(null);
             try {
-                const [newProductsData, allProductsData] = await Promise.all([
+                const [newProductsData, productsSaleTopData] = await Promise.all([
                     getNewProducts(),
-                    getAllProducts(),
+                    getProductsSaleTop(),
                 ]);
                 setNewProducts(newProductsData);
-                setAllProducts(allProductsData);
-            } catch (err: unknown) {
+                setProductsSaleTop(productsSaleTopData);
+            } catch (err) {
                 console.error("Lỗi khi tải dữ liệu trang chủ:", err);
-                setError("Không thể tải dữ liệu sản phẩm. Vui lòng thử lại sau.");
+                navigate('/error500'); // Chuyển hướng sang trang lỗi 500
             } finally {
                 setIsLoading(false);
             }
         };
         fetchHomeData();
-    }, []);
-
-    const handleProductClick = (e: React.MouseEvent, productId: string) => {
-        e.preventDefault(); setIsNavigating(true); setTimeout(() => { setIsNavigating(false); navigate(`/product/${productId}`); }, 800);
-    };
+    }, [navigate]);
 
     const categories = [
         { id: 1, name: "Điện thoại", Icon: FiSmartphone },
@@ -56,5 +41,5 @@ export const useHome = () => {
         { id: 6, name: "Màn hình", Icon: FiTv },
     ];
 
-    return { navigate, isNavigating, newProducts, allProducts, isLoading, error, categories, handleProductClick };
+    return { navigate, newProducts, productsSaleTop, isLoading, categories };
 };

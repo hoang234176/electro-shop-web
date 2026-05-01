@@ -1,35 +1,6 @@
 import { useState, useEffect } from "react";
 import { getCart, updateCartQuantity, removeFromCart } from "../../../services/cart.service";
-
-export interface DisplayCartItem {
-    compositeId: string;
-    productId: string;
-    color: string;
-    name: string;
-    price: number;
-    imageUrl: string;
-    quantity: number;
-    maxQuantity: number;
-}
-
-export interface CartItemVariant {
-    color: string;
-    image?: string;
-    quantity: number;
-}
-
-export interface CartItemProduct {
-    _id: string;
-    name: string;
-    price: number;
-    variants?: CartItemVariant[];
-}
-
-export interface ApiCartItem {
-    product: CartItemProduct;
-    color: string;
-    quantity: number;
-}
+import { type DisplayCartItem, type CartItemVariant, type ApiCartItem } from "../../../types/cart.types";
 
 export const useCart = () => {
     const [cartItems, setCartItems] = useState<DisplayCartItem[]>([]);

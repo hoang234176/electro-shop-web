@@ -1,29 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { getAllProducts } from "../../../services/product.service";
-import { deleteProduct } from "../../../services/admin.service";
+import { getAllProductsAdmin, deleteProduct } from "../../../services/admin.service";
+import { type ApiProduct, type ProductVariant } from "../../../types/product.types";
+import { type AdminDisplayProduct } from "../../../types/admin.types";
 
-export interface DisplayProduct {
-    id: string;
-    name: string;
-    category: string;
-    price: number;
-    stock: number;
-    imageUrl: string;
-}
-
-export interface ApiProductVariant {
-    quantity: number;
-    image?: string;
-}
-
-export interface ApiProduct {
-    _id: string;
-    name: string;
-    category?: { name: string };
-    price: number;
-    variants: ApiProductVariant[];
-}
+export type DisplayProduct = AdminDisplayProduct;
 
 export const useProductManagement = () => {
     const navigate = useNavigate();
@@ -36,22 +17,38 @@ export const useProductManagement = () => {
     const [alertMessage, setAlertMessage] = useState<{ text: string, type: 'success' | 'error' | 'warning' | 'info' } | null>(null);
 
     const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
     const ITEMS_PER_PAGE = 5;
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm]);
 
     useEffect(() => {
         const fetchProducts = async () => {
             setIsLoading(true);
             try {
-                const data = await getAllProducts();
-                const displayData: DisplayProduct[] = data.map((p: ApiProduct) => ({
+                const filters: Record<string, string | number> = {};
+                if (searchTerm.trim() !== "") filters.search = searchTerm;
+                filters.page = currentPage;
+                filters.limit = ITEMS_PER_PAGE;
+
+                const data = await getAllProductsAdmin(filters);
+                const productsList = data.products || data;
+
+                const displayData: DisplayProduct[] = productsList.map((p: ApiProduct) => ({
                     id: p._id,
                     name: p.name,
-                    category: p.category?.name || 'N/A',
+                    category: typeof p.category === 'object' ? p.category?.name || 'N/A' : p.category || 'N/A',
                     price: p.price,
-                    stock: p.variants.reduce((sum: number, v: ApiProductVariant) => sum + v.quantity, 0),
-                    imageUrl: p.variants.length > 0 && p.variants[0].image ? p.variants[0].image : 'https://via.placeholder.com/150?text=No+Image'
+                    stock: p.variants?.reduce((sum: number, v: ProductVariant) => sum + (v.quantity || 0), 0) || 0,
+                    imageUrl: p.variants && p.variants.length > 0 && p.variants[0].image ? p.variants[0].image : 'https://via.placeholder.com/150?text=No+Image'
                 }));
                 setProducts(displayData);
+                
+                if (data.totalPages) {
+                    setTotalPages(data.totalPages);
+                }
             } catch (error) {
                 console.error("Lỗi khi tải danh sách sản phẩm:", error);
                 setAlertMessage({ text: "Không thể tải danh sách sản phẩm từ máy chủ.", type: "error" });
@@ -61,7 +58,7 @@ export const useProductManagement = () => {
         };
 
         fetchProducts();
-    }, [location]);
+    }, [location, currentPage, searchTerm]);
 
     const formatCurrency = (amount: number) => {
         return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
@@ -85,14 +82,10 @@ export const useProductManagement = () => {
 
     const cancelDelete = () => setProductToDelete(null);
 
-    const filteredProducts = products.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()));
-    const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    const currentProducts = filteredProducts.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+    const currentProducts = products;
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(e.target.value);
-        setCurrentPage(1);
     };
 
     const getPaginationGroup = () => {

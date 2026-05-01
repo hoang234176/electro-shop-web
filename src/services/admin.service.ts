@@ -3,9 +3,10 @@ import { getToken } from "../utils/token.util";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
-export const GetAllUser = async () => {
+export const GetAllUser = async (filters = {}) => {
     try {
         const res = await axios.get(`${API_BASE_URL}/admin/users`, {
+            params: filters,
             headers: {
                 'Authorization': `${localStorage.getItem('token')}`
             }
@@ -113,10 +114,11 @@ export const addProduct = async (formData: FormData) => {
     }
 };
 
-export const getAllOrdersAdmin = async () => {
+export const getAllOrdersAdmin = async (filters = {}) => {
     try {
         const token = getToken();
         const response = await axios.get(`${API_BASE_URL}/admin/orders/all`, {
+            params: filters,
             headers: {
                 Authorization: `${token}`
             }
@@ -206,6 +208,28 @@ export const importProductAdmin = async (productId: string, formData: FormData) 
         });
         return res.data;
     } catch (error) {
+        if (axios.isAxiosError(error)) {
+            if (!error.response) {
+                throw { status: 500, message: "Lỗi kết nối máy chủ" };
+            }
+            throw { status: error.response?.status, message: error.response?.data.message };
+        } else {
+            throw { status: 500, message: "Lỗi hệ thống không xác định" };
+        }
+    }
+}
+
+export const getAllProductsAdmin = async (filters = {}) => {
+    try {
+        const token = getToken();
+        const response = await axios.get(`${API_BASE_URL}/admin/products/all`, {
+            params: filters,
+            headers: {
+                Authorization: `${token}`
+            } 
+        });
+        return response.data;
+    } catch (error) { 
         if (axios.isAxiosError(error)) {
             if (!error.response) {
                 throw { status: 500, message: "Lỗi kết nối máy chủ" };

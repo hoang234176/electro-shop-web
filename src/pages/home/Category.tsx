@@ -5,11 +5,14 @@ import "./Category.css";
 import { useCategory } from "../../hooks/features/home/useCategory";
 
 function Category() {
-    const { categories, isNavigating, selectedCategories, priceRange, setPriceRange, sortBy, setSortBy, isLoading, currentProductsToDisplay, handleCategoryChange, handleProductClick, currentPage, setCurrentPage, totalPages, getPaginationGroup } = useCategory();
+    const { categories, selectedCategories, priceRange, setPriceRange, sortBy, setSortBy, isLoading, currentProductsToDisplay, handleCategoryChange, currentPage, setCurrentPage, totalPages, getPaginationGroup } = useCategory();
 
-    return (
-        <div className="category-page-container">
-            {isNavigating && <Loading fullScreen={true} />}
+    if (isLoading) {
+        return <Loading fullScreen={true} />;
+    }
+
+    const renderNavbar = () => {
+        return (
             <aside className="filter-sidebar">
                 <div className="filter-group">
                     <h3 className="filter-title">Danh Mục Sản Phẩm</h3>
@@ -78,6 +81,12 @@ function Category() {
                     </div>
                 </div>
             </aside>
+        )
+    }
+
+    return (
+        <div className="category-page-container">
+            {renderNavbar()}
 
             <main className="product-list-main">
                 <div className="list-header">
@@ -91,9 +100,10 @@ function Category() {
                             onChange={(e) => setSortBy(e.target.value)}
                             className="sort-select"
                         >
-                            <option value="default">Mặc định</option>
+                            <option value="default">Mặc định (Mới nhất)</option>
                             <option value="price-asc">Giá: Tăng dần</option>
                             <option value="price-desc">Giá: Giảm dần</option>
+                            <option value="oldest">Cũ nhất</option>
                         </select>
                     </div>
                 </div>
@@ -103,7 +113,7 @@ function Category() {
                         <p>Đang tải dữ liệu...</p>
                     ) : currentProductsToDisplay.length > 0 ? (
                         currentProductsToDisplay.map((product) => (
-                            <Link to={`/product/${product.id}`} key={product.id} style={{ textDecoration: 'none', color: 'inherit' }} onClick={(e) => handleProductClick(e, product.id)}>
+                            <Link to={`/product/${product.id}`} key={product.id} style={{ textDecoration: 'none', color: 'inherit' }}>
                                 <ProductCard
                                     id={product.id}
                                     name={product.name}

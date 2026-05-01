@@ -1,19 +1,8 @@
 import { useState, useEffect } from "react";
 import { DeleteUser, GetAllUser } from "../../../services/admin.service";
+import { type User } from "../../../types/user.types";
 
-export interface User {
-    _id: string;
-    username: string;
-    name?: string;
-    fullname?: string;
-    email: string;
-    phone?: string;
-    role: string;
-    createdAt: string;
-    updatedAt?: string;
-    avatar?: string;
-    status?: string;
-}
+export type { User };
 
 export const useUserManagement = () => {
     const [users, setUsers] = useState<User[]>([]);
@@ -21,31 +10,32 @@ export const useUserManagement = () => {
     const [userToDelete, setUserToDelete] = useState<string | null>(null);
     const [alertMessage, setAlertMessage] = useState<{ text: string, type: 'success' | 'error' | 'warning' | 'info' } | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
 
     const ITEMS_PER_PAGE = 5;
 
     useEffect(() => {
         const fetchUsers = async () => {
             try {
-                const res = await GetAllUser();
-                const dataList = Array.isArray(res) ? res : (res?.data || res?.users || []);
-                setUsers(dataList);
+                const filters: Record<string, string | number> = {};
+                if (searchTerm.trim() !== "") filters.search = searchTerm;
+                filters.page = currentPage;
+                filters.limit = ITEMS_PER_PAGE;
+
+                const res = await GetAllUser(filters);
+                const dataList = res.users || res.data || res || [];
+                setUsers(Array.isArray(dataList) ? dataList : []);
+                
+                if (res.totalPages) setTotalPages(res.totalPages);
             } catch (error) {
                 console.error("Lỗi lấy danh sách người dùng:", error);
             }
         };
         fetchUsers();
-    }, []);
+    }, [currentPage, searchTerm]);
 
-    const filteredUsers = users.filter(user => {
-        const displayName = user.name || user.fullname || user.username || "";
-        return displayName.toLowerCase().includes(searchTerm.toLowerCase()) || 
-               user.email.toLowerCase().includes(searchTerm.toLowerCase());
-    });
-
-    const totalPages = Math.ceil(filteredUsers.length / ITEMS_PER_PAGE);
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    const currentUsers = filteredUsers.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+    const currentUsers = users;
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(e.target.value);

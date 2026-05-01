@@ -2,28 +2,9 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { runGemini } from "../../../services/ai.service";
 import { addProduct } from "../../../services/admin.service";
+import { type GeminiVariant, type GeminiSpec, type GeminiProductData } from "../../../types/admin.types";
 
-export interface GeminiVariant {
-    color?: string;
-    quantity?: string;
-    image?: string;
-}
-
-export interface GeminiSpec {
-    label?: string;
-    value?: string;
-}
-
-export interface GeminiProductData {
-    name?: string;
-    brand?: string;
-    category?: string;
-    importPrice?: string;
-    price?: string;
-    description?: string;
-    variants?: GeminiVariant[];
-    specifications?: GeminiSpec[];
-}
+export type { GeminiVariant, GeminiSpec, GeminiProductData };
 
 export const useAddProduct = () => {
     const navigate = useNavigate();
