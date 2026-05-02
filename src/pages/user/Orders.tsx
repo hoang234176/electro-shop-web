@@ -65,7 +65,7 @@ function Orders() {
 
                 <div className="orders-list">
                     {isLoading ? (
-                        <Loading fullScreen={false} text="Đang tải lịch sử mua hàng của bạn..." />
+                        <Loading fullScreen={false} />
                     ) : filteredOrders.length === 0 ? (
                         <div className="no-orders">
                             Bạn chưa có đơn hàng nào.

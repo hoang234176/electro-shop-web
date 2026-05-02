@@ -20,7 +20,7 @@ function Invoice() {
     if (isLoading || !orderData) {
         return (
             <div className="invoice-container">
-                <Loading fullScreen={false} text="Đang xử lý kết quả giao dịch..." />
+                <Loading fullScreen={false} />
             </div>
         );
     }
