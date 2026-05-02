@@ -88,3 +88,22 @@ export const getProductsSaleTop = async () => {
         }
     }
 };
+
+export const getAllProductsForAI = async () => {
+    try {
+        const res = await axios.get(`${API_BASE_URL}/products/all`);
+        return res.data;
+    } catch (error) {
+        if (axios.isAxiosError(error)) {
+            if (!error.response) {
+                throw { status: 500, message: "Lỗi kết nối máy chủ" };
+            }  
+            if (error.response.status === 404) {
+                return []; // Trả về mảng rỗng nếu không có sản phẩm bán chạy
+            }
+            throw { status: error.response?.status, message: error.response?.data.message };
+        } else {
+            throw { status: 500, message: "Lỗi hệ thống không xác định" };
+        }
+    }
+};

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getProductById, getAllProducts } from "../../../services/product.service";
+import { getProductById, getAllProductsForAI } from "../../../services/product.service";
 import { getReviewsByProduct, createReview } from "../../../services/review.service";
 import { getUserId } from "../../../utils/token.util";
 import { addToCart } from "../../../services/cart.service";
@@ -60,7 +60,7 @@ export const useProductDetail = () => {
     const fetchRelatedProducts = async (currentProduct: ApiProduct) => {
         setIsRelatedLoading(true);
         try {
-            const allProducts = await getAllProducts();
+            const allProducts = await getAllProductsForAI();
             const availableProducts = allProducts.filter((p: ApiProduct) => p._id !== currentProduct._id);
             if (availableProducts.length === 0) return;
             const recommendedIds = await getRelatedProductsFromAI(currentProduct, availableProducts);
