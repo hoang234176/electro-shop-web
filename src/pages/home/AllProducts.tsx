@@ -2,7 +2,8 @@ import { Link } from "react-router-dom";
 import ProductCard from "../../component/ui/ProductCard";
 import Loading from "../../component/ui/Loading";
 import "./Category.css"; // Tận dụng CSS của trang Category để dùng chung layout
-import { useAllProducts, type DisplayProduct } from "../../hooks/features/home/useAllProducts";
+import { useAllProducts } from "../../hooks/features/home/useAllProducts";
+import { type DisplayProduct } from "../../types/product.types";
 
 function AllProducts() {
     const { 
