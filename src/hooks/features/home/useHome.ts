@@ -11,6 +11,7 @@ export const useHome = () => {
     const [newProducts, setNewProducts] = useState<ProductCardItem[]>([]);
     const [productsSaleTop, setProductsSaleTop] = useState<ProductCardItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [isError, setIsError] = useState(false);
 
     useEffect(() => {
         const fetchHomeData = async () => {
@@ -24,7 +25,7 @@ export const useHome = () => {
                 setProductsSaleTop(productsSaleTopData);
             } catch (err) {
                 console.error("Lỗi khi tải dữ liệu trang chủ:", err);
-                navigate('/error500'); // Chuyển hướng sang trang lỗi 500
+                setIsError(true); 
             } finally {
                 setIsLoading(false);
             }
@@ -41,5 +42,5 @@ export const useHome = () => {
         { id: 6, name: "Màn hình", Icon: FiTv },
     ];
 
-    return { navigate, newProducts, productsSaleTop, isLoading, categories };
+    return { navigate, newProducts, productsSaleTop, isLoading, isError, categories };
 };
